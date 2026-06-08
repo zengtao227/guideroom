@@ -18,6 +18,7 @@
     "uuid": "latest"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
     "@types/node": "latest",
     "@types/qrcode": "latest",
     "@types/react": "latest",
