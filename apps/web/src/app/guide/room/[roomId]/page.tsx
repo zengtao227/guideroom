@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRoom } from '@/lib/room-store';
+import { generateQrDataUrl } from '@/lib/qr';
 
 type GuideRoomPageProps = {
   params: Promise<{ roomId: string }>;
@@ -14,7 +15,9 @@ export default async function GuideRoomPage({ params }: GuideRoomPageProps) {
     notFound();
   }
 
-  const listenUrl = `/listen/${roomId}`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const listenerUrl = `${appUrl}/listen/${roomId}`;
+  const qrDataUrl = await generateQrDataUrl(listenerUrl);
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-950">
@@ -50,13 +53,18 @@ export default async function GuideRoomPage({ params }: GuideRoomPageProps) {
         </div>
 
         <aside className="rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
-          <div className="mx-auto flex h-56 w-56 items-center justify-center rounded-2xl bg-slate-100 text-sm text-slate-500">
-            QR placeholder
-          </div>
+          <img
+            src={qrDataUrl}
+            alt="QR code for listener link"
+            className="mx-auto h-56 w-56 rounded-2xl"
+          />
           <p className="mt-5 text-sm text-slate-600">Listener link</p>
-          <Link href={listenUrl} className="mt-2 block break-all text-sm font-semibold text-slate-950">
-            {listenUrl}
-          </Link>
+          <a
+            href={listenerUrl}
+            className="mt-2 block break-all text-sm font-semibold text-slate-950"
+          >
+            {listenerUrl}
+          </a>
         </aside>
       </section>
     </main>
