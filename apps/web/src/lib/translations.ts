@@ -36,6 +36,12 @@ export type Translations = {
     roomId: string;
     status: string;
     statusActive: string;
+    statusEnded: string;
+    statusExpired: string;
+    sessionTime: string;
+    expiresAt: string;
+    roomEnded: string;
+    roomExpired: string;
     listeners: string;
     listenersConnected: string;
     microphone: string;
@@ -52,6 +58,7 @@ export type Translations = {
   listenerRoom: {
     tag: string;
     guide: string;
+    expiresAt: string;
     putOnEarphones: string;
     tapToJoin: string;
     startListening: string;
@@ -60,6 +67,8 @@ export type Translations = {
     connecting: string;
     audioPlaying: string;
     roomEnded: string;
+    roomExpired: string;
+    sessionExpired: string;
     guideClosedSession: string;
     guideLeft: string;
   };
@@ -99,6 +108,12 @@ const en: Translations = {
     roomId: 'Room ID:',
     status: 'Status',
     statusActive: 'Active',
+    statusEnded: 'Ended',
+    statusExpired: 'Expired',
+    sessionTime: 'Session time',
+    expiresAt: 'Expires at',
+    roomEnded: 'This room has ended.',
+    roomExpired: 'This room has expired.',
     listeners: 'Listeners',
     listenersConnected: 'connected',
     microphone: 'Microphone',
@@ -115,6 +130,7 @@ const en: Translations = {
   listenerRoom: {
     tag: 'GuideRoom listener',
     guide: 'Guide:',
+    expiresAt: 'Expires at:',
     putOnEarphones: 'Put on your earphones.',
     tapToJoin: 'Tap the button below to join the live audio room.',
     startListening: 'Start listening',
@@ -123,6 +139,8 @@ const en: Translations = {
     connecting: 'Connecting…',
     audioPlaying: 'Audio is playing. Use your earphones for the best experience.',
     roomEnded: 'This room has ended.',
+    roomExpired: 'This room has expired.',
+    sessionExpired: 'The purchased session time is over.',
     guideClosedSession: 'The guide has closed the session.',
     guideLeft: 'The guide has left. The session may have ended.',
   },
@@ -162,6 +180,12 @@ const zh: Translations = {
     roomId: '房间ID：',
     status: '状态',
     statusActive: '进行中',
+    statusEnded: '已结束',
+    statusExpired: '已过期',
+    sessionTime: '购买时长',
+    expiresAt: '到期时间',
+    roomEnded: '此房间已结束。',
+    roomExpired: '此房间已过期。',
     listeners: '听众',
     listenersConnected: '已连接',
     microphone: '麦克风',
@@ -178,6 +202,7 @@ const zh: Translations = {
   listenerRoom: {
     tag: 'GuideRoom 听众端',
     guide: '导游：',
+    expiresAt: '到期时间：',
     putOnEarphones: '请佩戴好耳机。',
     tapToJoin: '点击下方按钮加入直播音频房间。',
     startListening: '开始收听',
@@ -186,6 +211,8 @@ const zh: Translations = {
     connecting: '连接中…',
     audioPlaying: '音频正在播放，建议使用耳机以获得最佳体验。',
     roomEnded: '此房间已结束。',
+    roomExpired: '此房间已过期。',
+    sessionExpired: '购买的使用时长已经结束。',
     guideClosedSession: '导游已关闭本次导览。',
     guideLeft: '导游已离开房间，导览可能已结束。',
   },
@@ -225,6 +252,12 @@ const de: Translations = {
     roomId: 'Raum-ID:',
     status: 'Status',
     statusActive: 'Aktiv',
+    statusEnded: 'Beendet',
+    statusExpired: 'Abgelaufen',
+    sessionTime: 'Sitzungsdauer',
+    expiresAt: 'Läuft ab um',
+    roomEnded: 'Dieser Raum wurde beendet.',
+    roomExpired: 'Dieser Raum ist abgelaufen.',
     listeners: 'Zuhörer',
     listenersConnected: 'verbunden',
     microphone: 'Mikrofon',
@@ -241,6 +274,7 @@ const de: Translations = {
   listenerRoom: {
     tag: 'GuideRoom Zuhörer',
     guide: 'Reiseführer:',
+    expiresAt: 'Läuft ab um:',
     putOnEarphones: 'Kopfhörer aufsetzen.',
     tapToJoin: 'Tippe unten, um dem Live-Audioraum beizutreten.',
     startListening: 'Zuhören starten',
@@ -248,7 +282,9 @@ const de: Translations = {
     connectedLive: 'Verbunden — Live-Übertragung',
     connecting: 'Verbinde…',
     audioPlaying: 'Audio läuft. Kopfhörer für beste Erfahrung empfohlen.',
-    roomEnded: 'Dieser Raum ist beendet.',
+    roomEnded: 'Dieser Raum wurde beendet.',
+    roomExpired: 'Dieser Raum ist abgelaufen.',
+    sessionExpired: 'Die gekaufte Sitzungsdauer ist vorbei.',
     guideClosedSession: 'Der Reiseführer hat die Sitzung beendet.',
     guideLeft: 'Der Reiseführer hat den Raum verlassen. Die Führung ist möglicherweise beendet.',
   },
@@ -288,6 +324,12 @@ const fr: Translations = {
     roomId: 'ID salle :',
     status: 'Statut',
     statusActive: 'Actif',
+    statusEnded: 'Terminée',
+    statusExpired: 'Expirée',
+    sessionTime: 'Durée',
+    expiresAt: 'Expire à',
+    roomEnded: 'Cette salle est terminée.',
+    roomExpired: 'Cette salle a expiré.',
     listeners: 'Auditeurs',
     listenersConnected: 'connectés',
     microphone: 'Microphone',
@@ -304,6 +346,7 @@ const fr: Translations = {
   listenerRoom: {
     tag: 'GuideRoom auditeur',
     guide: 'Guide :',
+    expiresAt: 'Expire à :',
     putOnEarphones: 'Mettez vos écouteurs.',
     tapToJoin: 'Appuyez sur le bouton ci-dessous pour rejoindre la salle audio en direct.',
     startListening: 'Commencer à écouter',
@@ -312,6 +355,8 @@ const fr: Translations = {
     connecting: 'Connexion…',
     audioPlaying: 'Audio en cours. Utilisez vos écouteurs pour une meilleure expérience.',
     roomEnded: 'Cette salle est terminée.',
+    roomExpired: 'Cette salle a expiré.',
+    sessionExpired: 'La durée achetée est terminée.',
     guideClosedSession: 'Le guide a clôturé la session.',
     guideLeft: 'Le guide a quitté la salle. La visite est peut-être terminée.',
   },
