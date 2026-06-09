@@ -60,11 +60,11 @@ function GuideControls({ roomId }: { roomId: string }) {
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="mt-8 flex flex-col gap-3">
         <button
           onClick={toggleMic}
           disabled={!isConnected}
-          className={`rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-40 ${
+          className={`w-full rounded-full px-5 py-4 text-sm font-semibold disabled:opacity-40 ${
             isMicrophoneEnabled
               ? 'bg-slate-950 text-white'
               : 'bg-slate-200 text-slate-800'
@@ -75,7 +75,7 @@ function GuideControls({ roomId }: { roomId: string }) {
         <button
           onClick={handleEndRoom}
           disabled={isEnding}
-          className="rounded-full border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 disabled:opacity-40"
+          className="w-full rounded-full border border-red-200 px-5 py-4 text-sm font-semibold text-red-700 disabled:opacity-40"
         >
           {isEnding ? g.ending : g.endRoom}
         </button>

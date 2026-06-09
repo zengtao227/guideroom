@@ -134,7 +134,7 @@ export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName }: ListenerRo
                 setError(null);
                 handleStart();
               }}
-              className="mt-4 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950"
+              className="mt-4 w-full rounded-full bg-white px-5 py-4 text-sm font-semibold text-slate-950"
             >
               {l.retry}
             </button>

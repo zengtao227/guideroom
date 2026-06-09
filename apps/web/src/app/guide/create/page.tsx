@@ -58,7 +58,7 @@ export default function CreateRoomPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            className="w-full rounded-full bg-slate-950 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
           >
             {isPending ? c.creating : c.submit}
           </button>
