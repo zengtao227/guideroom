@@ -5,7 +5,8 @@ Page({
     roomId: '',
     title: '',
     guideName: '',
-    status: 'idle', // idle | connecting | connected | ended
+    status: 'idle', // idle | connecting | connected | guide_away | ended
+    graceCountdown: '',
   },
 
   ws: null,
@@ -13,6 +14,7 @@ Page({
   audioQueue: [],
   isPlaying: false,
   chunkIndex: 0,
+  graceTimer: null,
 
   onLoad(options) {
     const roomId = options.roomId || '';
@@ -50,11 +52,19 @@ Page({
 
     this.ws.onMessage((res) => {
       if (typeof res.data === 'string') {
-        const msg = JSON.parse(res.data);
-        if (msg.type === 'room_ended') {
-          this._cleanup();
-          this.setData({ status: 'ended' });
-        }
+        try {
+          const msg = JSON.parse(res.data);
+          if (msg.type === 'guide_disconnected') {
+            this._startGraceCountdown(msg.expiresAt);
+          } else if (msg.type === 'guide_reconnected') {
+            this._stopGraceCountdown();
+            this.setData({ status: 'connected' });
+          } else if (msg.type === 'room_ended') {
+            this._stopGraceCountdown();
+            this._cleanup();
+            this.setData({ status: 'ended' });
+          }
+        } catch (_) {}
         return;
       }
       // Binary: AAC audio chunk — write to temp file and queue for playback
@@ -89,7 +99,27 @@ Page({
     setTimeout(() => fs.unlink({ filePath: path, fail: () => {} }), 8000);
   },
 
+  _startGraceCountdown(expiresAt) {
+    this._stopGraceCountdown();
+    const expiry = new Date(expiresAt).getTime();
+    const tick = () => {
+      const remaining = Math.max(0, expiry - Date.now());
+      const mins = Math.floor(remaining / 60000);
+      const secs = Math.floor((remaining % 60000) / 1000);
+      const t = mins + ':' + String(secs).padStart(2, '0');
+      this.setData({ status: 'guide_away', graceCountdown: t });
+      if (remaining <= 0) this._stopGraceCountdown();
+    };
+    tick();
+    this.graceTimer = setInterval(tick, 1000);
+  },
+
+  _stopGraceCountdown() {
+    if (this.graceTimer) { clearInterval(this.graceTimer); this.graceTimer = null; }
+  },
+
   _cleanup() {
+    this._stopGraceCountdown();
     if (this.ws) { this.ws.close({}); this.ws = null; }
     if (this.audioCtx) { this.audioCtx.stop(); this.audioCtx.destroy(); this.audioCtx = null; }
     this.audioQueue = [];

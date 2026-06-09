@@ -13,6 +13,7 @@
 .status-dot { width: 20rpx; height: 20rpx; border-radius: 50%; }
 .status-dot.connecting { background: #f59e0b; }
 .status-dot.connected { background: #22c55e; }
+.countdown { font-size: 48rpx; font-weight: bold; color: #f59e0b; text-align: center; }
 .btn-primary {
   width: 100%; padding: 36rpx; border-radius: 100rpx;
   background: #ffffff; color: #0f172a;

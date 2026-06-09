@@ -20,6 +20,12 @@
     <text>收听中（实时）</text>
   </view>
 
+  <view wx:elif="{{status === 'guide_away'}}" class="card">
+    <text class="hint-main">导游暂时断线，请保持页面开启</text>
+    <text class="countdown">{{graceCountdown}} 后自动结束</text>
+    <text class="hint">导游回来后将自动恢复收听</text>
+  </view>
+
   <view wx:elif="{{status === 'ended'}}" class="card">
     <text class="title">房间已结束</text>
     <text class="hint">导游已关闭本次导览</text>

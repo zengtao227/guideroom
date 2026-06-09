@@ -138,10 +138,11 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
       if (sockets.guide !== ws) return;
       sockets.guide = null;
 
-      // Notify listeners of temporary disconnect
+      // Notify listeners of temporary disconnect with grace period expiry time
+      const expiresAt = new Date(Date.now() + GUIDE_GRACE_MS).toISOString();
       sockets.listeners.forEach((listener) => {
         if (listener.readyState === WebSocket.OPEN) {
-          listener.send(JSON.stringify({ type: 'guide_disconnected' }));
+          listener.send(JSON.stringify({ type: 'guide_disconnected', expiresAt }));
         }
       });
 
