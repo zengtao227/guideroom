@@ -142,8 +142,8 @@ ssh frank "cd /data/projects/guideroom && git pull && cd server && npm run build
 将 `/etc/caddy/Caddyfile` 中的 guideroom 块改为：
 ```
 guideroom.zengsg.dpdns.org {
-    reverse_proxy /relay-api/* localhost:3002
-    reverse_proxy /relay-ws    localhost:3003
+    reverse_proxy /relay-api/* localhost:4002
+    reverse_proxy /relay-ws    localhost:4003
     reverse_proxy *            localhost:3001
 }
 ```
