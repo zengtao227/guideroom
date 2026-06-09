@@ -114,7 +114,8 @@
     <div id="listener-warn" class="warn hidden">
       ⚠️ 如果没有声音，请确认导游已开始讲话，且你在导游开麦之前就已连接
     </div>
-    <audio id="audio-player" autoplay playsinline controls></audio>
+    <button id="reconnect-btn" class="btn-secondary hidden" onclick="reconnectListener()">重新连接</button>
+    <audio id="audio-player" autoplay playsinline style="display:none"></audio>
   </div>
 </div>
 
@@ -266,6 +267,8 @@ let mediaSource = null;
 let sourceBuffer = null;
 let chunkQueue = [];
 let mseReady = false;
+let currentRoomId = '';
+let firstChunkPlayed = false;
 
 function initListener() {
   const roomId = document.getElementById('join-id').value.trim();
@@ -274,7 +277,15 @@ function initListener() {
   startListenerWithId(roomId);
 }
 
+function reconnectListener() {
+  hide('reconnect-btn');
+  if (listenerWs) { try { listenerWs.close(); } catch(_) {} listenerWs = null; }
+  mediaSource = null; sourceBuffer = null; chunkQueue = []; mseReady = false; firstChunkPlayed = false;
+  startListenerWithId(currentRoomId);
+}
+
 async function startListenerWithId(roomId) {
+  currentRoomId = roomId;
   show('listener-view');
   setStatus('listener', 'yellow', '验证房间…');
 
@@ -311,12 +322,17 @@ async function startListenerWithId(roomId) {
   };
 
   listenerWs.onclose = (e) => {
-    if (!document.getElementById('listener-status').textContent.includes('结束')) {
+    const statusText = document.getElementById('listener-status').textContent;
+    if (!statusText.includes('结束')) {
       const reason = e.code === 4004 ? '房间不存在或已结束' : '连接已断开 (code ' + e.code + ')';
       setStatus('listener', 'gray', reason);
+      show('reconnect-btn');
     }
   };
-  listenerWs.onerror = () => setStatus('listener', 'red', '连接错误，请检查网络');
+  listenerWs.onerror = () => {
+    setStatus('listener', 'red', '连接错误，请检查网络');
+    show('reconnect-btn');
+  };
 }
 
 function handleListenerText(text) {
@@ -324,8 +340,13 @@ function handleListenerText(text) {
     const msg = JSON.parse(text);
     if (msg.type === 'audio_init') {
       setupMSE(msg.mimeType);
+    } else if (msg.type === 'guide_disconnected') {
+      setStatus('listener', 'yellow', '导游暂时断线，等待重连…（最长10分钟）');
+    } else if (msg.type === 'guide_reconnected') {
+      setStatus('listener', 'green', '导游已重连，收听中…');
     } else if (msg.type === 'room_ended') {
       setStatus('listener', 'red', '房间已结束');
+      hide('reconnect-btn');
       if (listenerWs) { listenerWs.close(); listenerWs = null; }
     }
   } catch (_) {}
@@ -356,7 +377,6 @@ function setupMSE(mimeType) {
       sourceBuffer.addEventListener('updateend', flushQueue);
       mseReady = true;
       flushQueue();
-      audio.play().catch(() => {});
     } catch (e) {
       setStatus('listener', 'red', '不支持的音频格式，请换用 Chrome');
     }
@@ -368,6 +388,12 @@ function flushQueue() {
   const chunk = chunkQueue.shift();
   try {
     sourceBuffer.appendBuffer(chunk);
+    // Trigger play on first chunk arriving — user already interacted by clicking 加入收听
+    if (!firstChunkPlayed) {
+      firstChunkPlayed = true;
+      const audio = document.getElementById('audio-player');
+      audio.play().catch(() => {});
+    }
   } catch (e) {
     if (e.name === 'QuotaExceededError' && sourceBuffer.buffered.length > 0) {
       const end = sourceBuffer.buffered.end(0);

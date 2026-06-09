@@ -55,6 +55,8 @@ type RoomSockets = {
 };
 
 const roomSockets = new Map<string, RoomSockets>();
+const guideGraceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const GUIDE_GRACE_MS = 10 * 60 * 1000; // 10-minute grace period on guide disconnect
 
 function getRoomSockets(roomId: string): RoomSockets {
   let room = roomSockets.get(roomId);
@@ -102,6 +104,18 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
   const sockets = getRoomSockets(roomId);
 
   if (role === 'guide') {
+    // Cancel any pending grace-period timer (guide is reconnecting)
+    const pendingTimer = guideGraceTimers.get(roomId);
+    if (pendingTimer) {
+      clearTimeout(pendingTimer);
+      guideGraceTimers.delete(roomId);
+      sockets.listeners.forEach((listener) => {
+        if (listener.readyState === WebSocket.OPEN) {
+          listener.send(JSON.stringify({ type: 'guide_reconnected' }));
+        }
+      });
+    }
+
     if (sockets.guide) sockets.guide.close(4001, 'replaced by new guide');
     sockets.guide = ws;
     broadcastListenerCount(roomId);
@@ -121,15 +135,33 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     });
 
     ws.on('close', () => {
-      if (sockets.guide === ws) sockets.guide = null;
-      markRelayRoomEnded(roomId);
+      if (sockets.guide !== ws) return;
+      sockets.guide = null;
+
+      // Notify listeners of temporary disconnect
       sockets.listeners.forEach((listener) => {
         if (listener.readyState === WebSocket.OPEN) {
-          listener.send(JSON.stringify({ type: 'room_ended' }));
-          listener.close();
+          listener.send(JSON.stringify({ type: 'guide_disconnected' }));
         }
       });
-      roomSockets.delete(roomId);
+
+      // End room only after 10-minute grace period
+      const timer = setTimeout(() => {
+        guideGraceTimers.delete(roomId);
+        markRelayRoomEnded(roomId);
+        const roomSock = roomSockets.get(roomId);
+        if (roomSock) {
+          roomSock.listeners.forEach((listener) => {
+            if (listener.readyState === WebSocket.OPEN) {
+              listener.send(JSON.stringify({ type: 'room_ended' }));
+              listener.close();
+            }
+          });
+          roomSockets.delete(roomId);
+        }
+      }, GUIDE_GRACE_MS);
+
+      guideGraceTimers.set(roomId, timer);
     });
   } else {
     sockets.listeners.add(ws);
