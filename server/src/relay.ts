@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import http from 'http';
+import QRCode from 'qrcode';
 import { WebSocketServer, WebSocket, RawData } from 'ws';
 import { createRelayRoom, getRelayRoom, markRelayRoomEnded } from './store';
 
@@ -26,6 +27,21 @@ app.get('/relay-api/rooms/:roomId', (req: Request, res: Response) => {
     return;
   }
   res.json({ roomId: room.id, title: room.title, guideName: room.guideName, expiresAt: room.expiresAt, status: room.status });
+});
+
+app.get('/relay-api/rooms/:roomId/qrcode', (req: Request, res: Response) => {
+  const room = getRelayRoom(String(req.params.roomId));
+  if (!room) {
+    res.status(404).json({ error: 'room not found' });
+    return;
+  }
+  QRCode.toBuffer(room.id, { width: 300, margin: 2 })
+    .then((png) => {
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.send(png);
+    })
+    .catch(() => res.status(500).json({ error: 'qrcode generation failed' }));
 });
 
 const httpServer = http.createServer(app);

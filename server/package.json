@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "express": "^4.21.0",
+    "qrcode": "^1.5.4",
     "uuid": "^11.0.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
+    "@types/qrcode": "^1.5.5",
     "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.13",
     "ts-node": "^10.9.2",

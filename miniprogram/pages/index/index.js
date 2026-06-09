@@ -1,5 +1,5 @@
 Page({
-  data: { creating: false },
+  data: { creating: false, roomIdInput: '' },
 
   createRoom() {
     if (this.data.creating) return;
@@ -23,6 +23,19 @@ Page({
       fail: () => wx.showToast({ title: 'Create failed', icon: 'none' }),
       complete: () => this.setData({ creating: false }),
     });
+  },
+
+  onRoomIdInput(e) {
+    this.setData({ roomIdInput: e.detail.value });
+  },
+
+  enterRoomId() {
+    const roomId = this.data.roomIdInput.trim();
+    if (!roomId) {
+      wx.showToast({ title: '请输入房间ID', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({ url: '/pages/listener/listener?roomId=' + roomId });
   },
 
   scanToListen() {

@@ -1,5 +1,5 @@
 {
-  "appid": "YOUR_APPID_HERE",
+  "appid": "",
   "projectname": "guideroom",
   "compileType": "miniprogram",
   "setting": {
@@ -12,7 +12,8 @@
     "autoAudits": false,
     "checkInvalidKey": true,
     "checkSiteMap": true,
-    "uploadWithSourceMap": true
+    "uploadWithSourceMap": true,
+    "minifyWXML": true
   },
   "condition": {}
 }

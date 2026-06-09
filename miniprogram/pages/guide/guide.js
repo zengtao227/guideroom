@@ -3,6 +3,7 @@ const recorder = wx.getRecorderManager();
 Page({
   data: {
     roomId: '',
+    qrcodeUrl: '',
     listenerCount: 0,
     micOn: false,
   },
@@ -12,7 +13,9 @@ Page({
 
   onLoad(options) {
     const roomId = options.roomId || '';
-    this.setData({ roomId });
+    const app = getApp();
+    const qrcodeUrl = app.globalData.relayBase + '/relay-api/rooms/' + roomId + '/qrcode';
+    this.setData({ roomId, qrcodeUrl });
     this._connectWs(roomId);
     this._setupRecorder();
   },
