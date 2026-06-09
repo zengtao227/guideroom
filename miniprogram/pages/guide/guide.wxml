@@ -1,0 +1,8 @@
+<view class="container">
+  <view class="card">
+    <text>{{roomId}}</text>
+    <text>{{listenerCount}}</text>
+  </view>
+  <button bindtap="toggleMic">{{micOn ? 'Stop' : 'Start'}}</button>
+  <button bindtap="endRoom">End</button>
+</view>
