@@ -25,6 +25,9 @@ export default async function GuideRoomPage({ params }: GuideRoomPageProps) {
       roomId={roomId}
       roomTitle={room.title}
       guideName={room.guideName}
+      durationHours={room.durationHours}
+      expiresAt={room.expiresAt}
+      status={room.status}
       qrDataUrl={qrDataUrl}
       listenerUrl={listenerUrl}
       wsUrl={wsUrl}
