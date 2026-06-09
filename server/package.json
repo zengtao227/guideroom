@@ -1,0 +1,24 @@
+{
+  "name": "guideroom-relay",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/relay.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/relay.js",
+    "dev": "ts-node src/relay.ts"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "uuid": "^11.0.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.5.13",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.0"
+  }
+}
