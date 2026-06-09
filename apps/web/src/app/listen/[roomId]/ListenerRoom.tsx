@@ -7,22 +7,25 @@ import {
   useConnectionState,
 } from '@livekit/components-react';
 import { ConnectionState } from 'livekit-client';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 type ListenerRoomProps = {
   roomId: string;
   wsUrl: string;
+  roomTitle: string;
+  guideName?: string;
 };
 
 function ActiveListener() {
   const connectionState = useConnectionState();
+  const { t } = useTranslation();
+  const { listenerRoom: l } = t;
 
   if (connectionState === ConnectionState.Disconnected) {
     return (
       <div className="mt-8 rounded-2xl bg-white/10 p-5 ring-1 ring-white/10">
-        <p className="font-semibold">This room has ended.</p>
-        <p className="mt-2 text-sm text-slate-300">
-          The guide has closed the session.
-        </p>
+        <p className="font-semibold">{l.roomEnded}</p>
+        <p className="mt-2 text-sm text-slate-300">{l.guideClosedSession}</p>
       </div>
     );
   }
@@ -40,20 +43,20 @@ function ActiveListener() {
             }`}
           />
           <p className="font-semibold">
-            {isConnected ? 'Connected — listening live' : 'Connecting…'}
+            {isConnected ? l.connectedLive : l.connecting}
           </p>
         </div>
-        <p className="mt-2 text-sm leading-6 text-slate-300">
-          Audio is playing. Use your earphones for the best experience.
-        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-300">{l.audioPlaying}</p>
       </div>
     </>
   );
 }
 
-export function ListenerRoom({ roomId, wsUrl }: ListenerRoomProps) {
+export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName }: ListenerRoomProps) {
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
+  const { listenerRoom: l } = t;
 
   async function handleStart() {
     try {
@@ -71,51 +74,61 @@ export function ListenerRoom({ roomId, wsUrl }: ListenerRoomProps) {
     }
   }
 
-  if (error) {
-    return (
-      <div className="mt-8">
-        <p className="text-sm text-red-400">{error}</p>
-        <button
-          onClick={() => {
-            setError(null);
-            handleStart();
-          }}
-          className="mt-4 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
-  if (!token) {
-    return (
-      <>
-        <div className="mt-8 rounded-2xl bg-white/10 p-5 ring-1 ring-white/10">
-          <p className="font-semibold">Put on your earphones.</p>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            Tap the button below to join the live audio room.
-          </p>
-        </div>
-        <button
-          onClick={handleStart}
-          className="mt-8 w-full rounded-full bg-white px-5 py-4 text-sm font-bold text-slate-950"
-        >
-          Start listening
-        </button>
-      </>
-    );
-  }
-
   return (
-    <LiveKitRoom
-      serverUrl={wsUrl}
-      token={token}
-      connect
-      audio={false}
-      video={false}
-    >
-      <ActiveListener />
-    </LiveKitRoom>
+    <main className="min-h-screen bg-slate-950 px-6 py-12 text-white">
+      <section className="mx-auto max-w-xl rounded-3xl bg-white/10 p-8 shadow-sm ring-1 ring-white/10">
+        <p className="text-sm font-semibold uppercase tracking-wide text-slate-300">
+          {l.tag}
+        </p>
+        <h1 className="mt-5 text-3xl font-bold">{roomTitle}</h1>
+        {guideName && (
+          <p className="mt-1 text-slate-300">
+            {l.guide} {guideName}
+          </p>
+        )}
+
+        {error && (
+          <div className="mt-8">
+            <p className="text-sm text-red-400">{error}</p>
+            <button
+              onClick={() => {
+                setError(null);
+                handleStart();
+              }}
+              className="mt-4 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950"
+            >
+              {l.retry}
+            </button>
+          </div>
+        )}
+
+        {!error && !token && (
+          <>
+            <div className="mt-8 rounded-2xl bg-white/10 p-5 ring-1 ring-white/10">
+              <p className="font-semibold">{l.putOnEarphones}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-300">{l.tapToJoin}</p>
+            </div>
+            <button
+              onClick={handleStart}
+              className="mt-8 w-full rounded-full bg-white px-5 py-4 text-sm font-bold text-slate-950"
+            >
+              {l.startListening}
+            </button>
+          </>
+        )}
+
+        {!error && token && (
+          <LiveKitRoom
+            serverUrl={wsUrl}
+            token={token}
+            connect
+            audio={false}
+            video={false}
+          >
+            <ActiveListener />
+          </LiveKitRoom>
+        )}
+      </section>
+    </main>
   );
 }

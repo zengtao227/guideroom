@@ -1,36 +1,40 @@
-import Link from 'next/link';
+'use client';
 
-const steps = [
-  'Guide creates a live audio room.',
-  'Guide shows the QR code to visitors.',
-  'Visitors scan and listen with their own phones.',
-];
+import Link from 'next/link';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 export default function HomePage() {
+  const { t } = useTranslation();
+  const { home: h } = t;
+
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-950">
       <section className="mx-auto flex max-w-4xl flex-col gap-10">
         <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">GuideRoom MVP</p>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            Create a live audio room in 30 seconds.
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-            Visitors scan a QR code and listen to the guide with their own phones and earphones. No dedicated receiver hardware required.
+          <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            {h.tagline}
           </p>
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{h.headline}</h1>
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">{h.description}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/guide/create" className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white">
-              Create a room
+            <Link
+              href="/guide/create"
+              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+            >
+              {h.cta}
             </Link>
-            <a href="#how-it-works" className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800">
-              How it works
+            <a
+              href="#how-it-works"
+              className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800"
+            >
+              {h.howItWorks}
             </a>
           </div>
         </div>
 
         <div id="how-it-works" className="grid gap-4 sm:grid-cols-3">
-          {steps.map((step, index) => (
-            <div key={step} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          {h.steps.map((step, index) => (
+            <div key={index} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
               <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-sm font-bold">
                 {index + 1}
               </div>

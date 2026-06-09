@@ -1,0 +1,14 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_APP_URL: https://guideroom.zengsg.dpdns.org
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      NODE_ENV: production
+      LIVEKIT_URL: ${LIVEKIT_URL}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+    restart: unless-stopped

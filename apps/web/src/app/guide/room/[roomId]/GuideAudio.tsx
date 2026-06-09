@@ -10,6 +10,7 @@ import {
 } from '@livekit/components-react';
 import { ConnectionState } from 'livekit-client';
 import { endRoomAction } from './actions';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 type GuideAudioProps = {
   roomId: string;
@@ -22,6 +23,8 @@ function GuideControls({ roomId }: { roomId: string }) {
   const connectionState = useConnectionState();
   const router = useRouter();
   const [isEnding, setIsEnding] = useState(false);
+  const { t } = useTranslation();
+  const { guideRoom: g } = t;
 
   const isConnected = connectionState === ConnectionState.Connected;
   const listenerCount = participants.filter((p) => !p.isLocal).length;
@@ -40,19 +43,19 @@ function GuideControls({ roomId }: { roomId: string }) {
     <>
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
-          <p className="text-xs uppercase text-slate-500">Status</p>
-          <p className="mt-2 font-semibold capitalize">
-            {isConnected ? 'Active' : connectionState}
+          <p className="text-xs uppercase text-slate-500">{g.status}</p>
+          <p className="mt-2 font-semibold">
+            {isConnected ? g.statusActive : connectionState}
           </p>
         </div>
         <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
-          <p className="text-xs uppercase text-slate-500">Listeners</p>
-          <p className="mt-2 font-semibold">{listenerCount} connected</p>
+          <p className="text-xs uppercase text-slate-500">{g.listeners}</p>
+          <p className="mt-2 font-semibold">{listenerCount} {g.listenersConnected}</p>
         </div>
         <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
-          <p className="text-xs uppercase text-slate-500">Microphone</p>
+          <p className="text-xs uppercase text-slate-500">{g.microphone}</p>
           <p className="mt-2 font-semibold">
-            {isMicrophoneEnabled ? 'On' : 'Off'}
+            {isMicrophoneEnabled ? g.micOn : g.micOff}
           </p>
         </div>
       </div>
@@ -67,14 +70,14 @@ function GuideControls({ roomId }: { roomId: string }) {
               : 'bg-slate-200 text-slate-800'
           }`}
         >
-          {isMicrophoneEnabled ? 'Stop speaking' : 'Start speaking'}
+          {isMicrophoneEnabled ? g.stopSpeaking : g.startSpeaking}
         </button>
         <button
           onClick={handleEndRoom}
           disabled={isEnding}
           className="rounded-full border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 disabled:opacity-40"
         >
-          {isEnding ? 'Ending…' : 'End room'}
+          {isEnding ? g.ending : g.endRoom}
         </button>
       </div>
     </>
@@ -84,23 +87,25 @@ function GuideControls({ roomId }: { roomId: string }) {
 export function GuideAudio({ roomId, wsUrl }: GuideAudioProps) {
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
+  const { guideRoom: g } = t;
 
   useEffect(() => {
     fetch(`/api/livekit-token?roomId=${encodeURIComponent(roomId)}&role=guide`)
       .then((r) => r.json())
       .then((data: { token?: string; error?: string }) => {
         if (data.token) setToken(data.token);
-        else setError(data.error ?? 'Failed to get token');
+        else setError(data.error ?? g.failedToConnect);
       })
-      .catch(() => setError('Failed to connect to room'));
-  }, [roomId]);
+      .catch(() => setError(g.failedToConnect));
+  }, [roomId, g.failedToConnect]);
 
   if (error) {
     return <p className="mt-8 text-sm text-red-600">{error}</p>;
   }
 
   if (!token) {
-    return <p className="mt-8 text-sm text-slate-400">Connecting to room…</p>;
+    return <p className="mt-8 text-sm text-slate-400">{g.connectingToRoom}</p>;
   }
 
   return (
