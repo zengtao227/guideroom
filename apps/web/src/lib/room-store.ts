@@ -6,6 +6,7 @@ export type Room = {
   id: string;
   title: string;
   guideName?: string;
+  durationHours: number;
   createdAt: string;
   expiresAt: string;
   status: RoomStatus;
@@ -20,6 +21,18 @@ export type CreateRoomInput = {
 
 const rooms = new Map<string, Room>();
 
+function getCurrentStatus(room: Room): RoomStatus {
+  if (room.status === 'ended') {
+    return 'ended';
+  }
+
+  if (Date.now() >= new Date(room.expiresAt).getTime()) {
+    return 'expired';
+  }
+
+  return room.status;
+}
+
 export function createRoom(input: CreateRoomInput): Room {
   const id = uuidv4();
   const now = new Date();
@@ -29,6 +42,7 @@ export function createRoom(input: CreateRoomInput): Room {
     id,
     title: input.title,
     guideName: input.guideName || undefined,
+    durationHours: input.durationHours,
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     status: 'active',
@@ -40,7 +54,21 @@ export function createRoom(input: CreateRoomInput): Room {
 }
 
 export function getRoom(id: string): Room | undefined {
-  return rooms.get(id);
+  const room = rooms.get(id);
+
+  if (!room) {
+    return undefined;
+  }
+
+  const status = getCurrentStatus(room);
+
+  if (status !== room.status) {
+    const updatedRoom = { ...room, status };
+    rooms.set(id, updatedRoom);
+    return updatedRoom;
+  }
+
+  return room;
 }
 
 export function endRoom(id: string): void {
@@ -48,4 +76,14 @@ export function endRoom(id: string): void {
   if (room) {
     rooms.set(id, { ...room, status: 'ended' });
   }
+}
+
+export function getRemainingRoomSeconds(id: string): number | undefined {
+  const room = getRoom(id);
+
+  if (!room || room.status !== 'active') {
+    return undefined;
+  }
+
+  return Math.max(0, Math.floor((new Date(room.expiresAt).getTime() - Date.now()) / 1000));
 }
