@@ -23,27 +23,27 @@ export default function CreateRoomPage() {
 
         <form action={action} className="mt-8 space-y-5">
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">{c.titleLabel}</span>
-            <input
-              name="title"
-              required
-              className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-              placeholder={c.titlePlaceholder}
-            />
-          </label>
-
-          {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-
-          <label className="block">
             <span className="text-sm font-medium text-slate-700">{c.durationLabel}</span>
             <select
               name="duration"
+              required
               className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
               defaultValue="1h"
             >
               <option value="1h">{c.duration1h}</option>
               <option value="4h">{c.duration4h}</option>
             </select>
+          </label>
+
+          {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+
+          <label className="block">
+            <span className="text-sm font-medium text-slate-700">{c.titleLabel}</span>
+            <input
+              name="title"
+              className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+              placeholder={c.titlePlaceholder}
+            />
           </label>
 
           <label className="block">
