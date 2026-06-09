@@ -1,5 +1,6 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { NextRequest } from 'next/server';
+import { getRemainingRoomSeconds, getRoom } from '@/lib/room-store';
 
 export const runtime = 'nodejs';
 
@@ -12,6 +13,17 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: 'roomId and role are required' }, { status: 400 });
   }
 
+  const room = getRoom(roomId);
+  const remainingSeconds = getRemainingRoomSeconds(roomId);
+
+  if (!room) {
+    return Response.json({ error: 'Room not found' }, { status: 404 });
+  }
+
+  if (room.status !== 'active' || !remainingSeconds) {
+    return Response.json({ error: 'Room is no longer active' }, { status: 410 });
+  }
+
   const apiKey = process.env.LIVEKIT_API_KEY;
   const apiSecret = process.env.LIVEKIT_API_SECRET;
 
@@ -22,7 +34,7 @@ export async function GET(req: NextRequest) {
   const at = new AccessToken(apiKey, apiSecret, {
     identity: `${role}-${Date.now()}`,
     name: role === 'guide' ? 'Guide' : 'Visitor',
-    ttl: '4h',
+    ttl: Math.max(60, remainingSeconds),
   });
 
   at.addGrant({
@@ -33,5 +45,5 @@ export async function GET(req: NextRequest) {
   });
 
   const token = await at.toJwt();
-  return Response.json({ token });
+  return Response.json({ token, expiresIn: remainingSeconds });
 }
