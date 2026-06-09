@@ -15,6 +15,8 @@ type ListenerRoomProps = {
   wsUrl: string;
   roomTitle: string;
   guideName?: string;
+  status: 'active' | 'ended' | 'expired';
+  expiresAt: string;
 };
 
 const GUIDE_GONE_DELAY_MS = 30_000;
@@ -91,11 +93,12 @@ function ActiveListener() {
   );
 }
 
-export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName }: ListenerRoomProps) {
+export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName, status, expiresAt }: ListenerRoomProps) {
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
   const { listenerRoom: l } = t;
+  const isActive = status === 'active';
 
   async function handleStart() {
     try {
@@ -125,8 +128,22 @@ export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName }: ListenerRo
             {l.guide} {guideName}
           </p>
         )}
+        <p className="mt-2 text-sm text-slate-400">
+          {l.expiresAt} {new Date(expiresAt).toLocaleString()}
+        </p>
 
-        {error && (
+        {!isActive && (
+          <div className="mt-8 rounded-2xl bg-white/10 p-5 ring-1 ring-white/10">
+            <p className="font-semibold">
+              {status === 'ended' ? l.roomEnded : l.roomExpired}
+            </p>
+            <p className="mt-2 text-sm text-slate-300">
+              {status === 'ended' ? l.guideClosedSession : l.sessionExpired}
+            </p>
+          </div>
+        )}
+
+        {isActive && error && (
           <div className="mt-8">
             <p className="text-sm text-red-400">{error}</p>
             <button
@@ -141,7 +158,7 @@ export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName }: ListenerRo
           </div>
         )}
 
-        {!error && !token && (
+        {isActive && !error && !token && (
           <>
             <div className="mt-8 rounded-2xl bg-white/10 p-5 ring-1 ring-white/10">
               <p className="font-semibold">{l.putOnEarphones}</p>
@@ -156,7 +173,7 @@ export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName }: ListenerRo
           </>
         )}
 
-        {!error && token && (
+        {isActive && !error && token && (
           <LiveKitRoom
             serverUrl={wsUrl}
             token={token}
