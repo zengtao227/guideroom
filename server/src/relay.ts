@@ -99,11 +99,18 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     sockets.guide = ws;
     broadcastListenerCount(roomId);
 
-    ws.on('message', (data: RawData) => {
-      const audioBuffer = rawDataToBuffer(data);
-      sockets.listeners.forEach((listener) => {
-        if (listener.readyState === WebSocket.OPEN) listener.send(audioBuffer);
-      });
+    ws.on('message', (data: RawData, isBinary: boolean) => {
+      if (isBinary) {
+        const audioBuffer = rawDataToBuffer(data);
+        sockets.listeners.forEach((listener) => {
+          if (listener.readyState === WebSocket.OPEN) listener.send(audioBuffer);
+        });
+      } else {
+        const text = data.toString();
+        sockets.listeners.forEach((listener) => {
+          if (listener.readyState === WebSocket.OPEN) listener.send(text);
+        });
+      }
     });
 
     ws.on('close', () => {
