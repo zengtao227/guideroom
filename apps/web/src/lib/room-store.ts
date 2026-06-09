@@ -19,7 +19,14 @@ export type CreateRoomInput = {
   durationHours: number;
 };
 
-const rooms = new Map<string, Room>();
+declare global {
+  var __guideroomRooms: Map<string, Room> | undefined;
+}
+
+function getRooms(): Map<string, Room> {
+  globalThis.__guideroomRooms ??= new Map<string, Room>();
+  return globalThis.__guideroomRooms;
+}
 
 function getCurrentStatus(room: Room): RoomStatus {
   if (room.status === 'ended') {
@@ -49,11 +56,12 @@ export function createRoom(input: CreateRoomInput): Room {
     livekitRoomName: id,
   };
 
-  rooms.set(id, room);
+  getRooms().set(id, room);
   return room;
 }
 
 export function getRoom(id: string): Room | undefined {
+  const rooms = getRooms();
   const room = rooms.get(id);
 
   if (!room) {
@@ -72,7 +80,9 @@ export function getRoom(id: string): Room | undefined {
 }
 
 export function endRoom(id: string): void {
+  const rooms = getRooms();
   const room = rooms.get(id);
+
   if (room) {
     rooms.set(id, { ...room, status: 'ended' });
   }
