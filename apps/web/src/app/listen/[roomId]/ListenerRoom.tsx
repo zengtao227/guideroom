@@ -21,6 +21,10 @@ type ListenerRoomProps = {
 
 const GUIDE_GONE_DELAY_MS = 30_000;
 
+function formatDateTime(value: string): string {
+  return value.replace('T', ' ').slice(0, 16) + ' UTC';
+}
+
 function ActiveListener() {
   const connectionState = useConnectionState();
   const remoteParticipants = useRemoteParticipants();
@@ -129,7 +133,7 @@ export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName, status, expi
           </p>
         )}
         <p className="mt-2 text-sm text-slate-400">
-          {l.expiresAt} {new Date(expiresAt).toLocaleString()}
+          {l.expiresAt} {formatDateTime(expiresAt)}
         </p>
 
         {!isActive && (
