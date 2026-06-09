@@ -10,7 +10,7 @@ export default async function ListenPage({ params }: ListenPageProps) {
   const { roomId } = await params;
   const room = getRoom(roomId);
 
-  if (!room || room.status !== 'active') {
+  if (!room) {
     notFound();
   }
 
@@ -22,6 +22,8 @@ export default async function ListenPage({ params }: ListenPageProps) {
       wsUrl={wsUrl}
       roomTitle={room.title}
       guideName={room.guideName}
+      status={room.status}
+      expiresAt={room.expiresAt}
     />
   );
 }
