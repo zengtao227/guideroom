@@ -274,8 +274,27 @@ function initListener() {
   startListenerWithId(roomId);
 }
 
-function startListenerWithId(roomId) {
+async function startListenerWithId(roomId) {
   show('listener-view');
+  setStatus('listener', 'yellow', '验证房间…');
+
+  // Pre-check room existence before opening WebSocket
+  try {
+    const res = await fetch(RELAY + '/relay-api/rooms/' + roomId);
+    if (!res.ok) {
+      setStatus('listener', 'red', '房间不存在或已结束');
+      return;
+    }
+    const room = await res.json();
+    if (room.status !== 'active') {
+      setStatus('listener', 'red', '房间已结束');
+      return;
+    }
+  } catch (e) {
+    setStatus('listener', 'red', '无法连接服务器：' + e.message);
+    return;
+  }
+
   setStatus('listener', 'yellow', '连接中…');
 
   listenerWs = new WebSocket(WS_BASE + '/relay-ws?roomId=' + roomId + '&role=listener');
@@ -291,12 +310,13 @@ function startListenerWithId(roomId) {
     }
   };
 
-  listenerWs.onclose = () => {
+  listenerWs.onclose = (e) => {
     if (!document.getElementById('listener-status').textContent.includes('结束')) {
-      setStatus('listener', 'gray', '连接已断开');
+      const reason = e.code === 4004 ? '房间不存在或已结束' : '连接已断开 (code ' + e.code + ')';
+      setStatus('listener', 'gray', reason);
     }
   };
-  listenerWs.onerror = () => setStatus('listener', 'red', '连接错误');
+  listenerWs.onerror = () => setStatus('listener', 'red', '连接错误，请检查网络');
 }
 
 function handleListenerText(text) {

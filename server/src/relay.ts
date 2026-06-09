@@ -81,6 +81,13 @@ function rawDataToBuffer(data: RawData): Buffer {
 const wss = new WebSocketServer({ port: WS_PORT, host: '127.0.0.1' });
 console.log(`Relay WebSocket listening on 127.0.0.1:${WS_PORT}`);
 
+// Ping all clients every 30s to prevent Cloudflare/proxy idle timeout (100s limit)
+setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (ws.readyState === WebSocket.OPEN) ws.ping();
+  });
+}, 30000);
+
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
   const url = new URL(req.url ?? '', 'http://localhost');
   const roomId = url.searchParams.get('roomId') ?? '';
