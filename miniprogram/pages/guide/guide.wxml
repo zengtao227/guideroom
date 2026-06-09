@@ -1,8 +1,18 @@
 <view class="container">
   <view class="card">
-    <text>{{roomId}}</text>
-    <text>{{listenerCount}}</text>
+    <text class="label">房间ID（点击复制，让访客扫码或手动输入）</text>
+    <text class="room-id" bindtap="copyRoomId">{{roomId}}</text>
+    <text class="hint">点击上方ID可复制</text>
   </view>
-  <button bindtap="toggleMic">{{micOn ? 'Stop' : 'Start'}}</button>
-  <button bindtap="endRoom">End</button>
+
+  <view class="card row">
+    <text class="label">当前收听人数</text>
+    <text class="count">{{listenerCount}}</text>
+  </view>
+
+  <button class="btn-mic {{micOn ? 'active' : ''}}" bindtap="toggleMic">
+    {{micOn ? '🎙 停止讲话' : '🎙 开始讲话'}}
+  </button>
+
+  <button class="btn-end" bindtap="endRoom">结束房间</button>
 </view>

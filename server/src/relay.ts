@@ -20,7 +20,7 @@ app.post('/relay-api/rooms', (req: Request, res: Response) => {
 });
 
 app.get('/relay-api/rooms/:roomId', (req: Request, res: Response) => {
-  const room = getRelayRoom(req.params.roomId);
+  const room = getRelayRoom(String(req.params.roomId));
   if (!room) {
     res.status(404).json({ error: 'room not found' });
     return;

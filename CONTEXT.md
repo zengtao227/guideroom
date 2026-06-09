@@ -97,3 +97,60 @@ sudo docker compose logs -f  # 查看日志
 - **host 网络模式**：LiveKit 容器使用 `network_mode: host` 避免 Docker NAT 影响 WebRTC ICE
 - **in-memory store**：MVP 阶段无数据库，重启后所有房间丢失；足够用于单次导览
 - **NEXT_PUBLIC_APP_URL 在构建时注入**：生产 URL baked 进 JS bundle，Dockerfile ARG 控制
+
+---
+
+## 微信小程序（中国市场）
+
+两套产品并行，互不干扰：
+
+| 产品 | 目标市场 | 音频后端 | 服务器 |
+|------|---------|---------|--------|
+| Web app（现有） | 欧洲/全球 | LiveKit WebRTC | Frankfurt VPS :3001 |
+| 微信小程序（新） | 中国 | WebSocket 音频中继 | Frankfurt VPS :3002/:3003（测试） → 国内 ECS（正式） |
+
+### 中继服务器（`server/`）
+
+| 端点 | 说明 |
+|------|------|
+| `POST /relay-api/rooms` | 创建房间，返回 `{ roomId, expiresAt, title }` |
+| `GET /relay-api/rooms/:roomId` | 查询房间信息 |
+| `wss://guideroom.zengsg.dpdns.org/relay-ws?roomId=X&role=guide\|listener` | WebSocket 音频中继 |
+
+### 中继服务器管理（Frankfurt VPS）
+
+```bash
+ssh frank "pm2 status guideroom-relay"
+ssh frank "pm2 logs guideroom-relay --lines 50"
+ssh frank "pm2 restart guideroom-relay"
+```
+
+### 部署中继服务器（首次）
+
+```bash
+ssh frank "cd /data/projects/guideroom && git pull && cd server && npm install && npm run build"
+ssh frank "pm2 start /data/projects/guideroom/server/ecosystem.config.js && pm2 save"
+```
+
+更新代码后重启：
+```bash
+ssh frank "cd /data/projects/guideroom && git pull && cd server && npm run build && pm2 restart guideroom-relay"
+```
+
+### Caddy 配置（需手动更新一次）
+
+将 `/etc/caddy/Caddyfile` 中的 guideroom 块改为：
+```
+guideroom.zengsg.dpdns.org {
+    reverse_proxy /relay-api/* localhost:3002
+    reverse_proxy /relay-ws    localhost:3003
+    reverse_proxy *            localhost:3001
+}
+```
+
+### 小程序发布前提条件
+
+- 注册微信小程序开发者账号（企业主体）
+- 将 `miniprogram/project.config.json` 中 `YOUR_APPID_HERE` 替换为真实 AppID
+- 在微信公众平台后台将 `guideroom.zengsg.dpdns.org` 加入合法域名白名单
+- 正式对中国用户上线时，将中继服务器迁移至国内 ECS

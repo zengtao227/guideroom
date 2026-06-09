@@ -1,16 +1,16 @@
 <view class="container">
   <view class="hero">
     <text class="tagline">GuideRoom</text>
-    <text class="headline">Create a live audio room</text>
-    <text class="desc">Visitors scan and listen with their own phones.</text>
+    <text class="headline">30秒创建导游直播音频房间</text>
+    <text class="desc">访客扫码用自己的手机收听，无需专用设备</text>
   </view>
 
   <view class="actions">
     <button class="btn-primary" bindtap="createRoom" loading="{{creating}}">
-      {{creating ? 'Creating...' : 'Create room'}}
+      {{creating ? '创建中…' : '创建房间（导游）'}}
     </button>
     <button class="btn-secondary" bindtap="scanToListen">
-      Scan to listen
+      扫码收听（访客）
     </button>
   </view>
 </view>

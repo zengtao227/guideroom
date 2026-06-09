@@ -1,24 +1,28 @@
 <view class="container">
   <view class="card">
-    <text>GuideRoom Listener</text>
-    <text>{{title || 'GuideRoom session'}}</text>
+    <text class="tag">GuideRoom 听众端</text>
+    <text class="title">{{title || '导览房间'}}</text>
+    <text wx:if="{{guideName}}" class="guide">导游：{{guideName}}</text>
   </view>
 
   <view wx:if="{{status === 'idle'}}" class="card">
-    <text>Please use earphones, then tap Start.</text>
-    <button bindtap="startListening">Start listening</button>
+    <text class="hint-main">请佩戴耳机，然后点击下方按钮开始收听</text>
+    <button class="btn-primary" bindtap="startListening">开始收听</button>
   </view>
 
-  <view wx:elif="{{status === 'connecting'}}" class="card">
-    <text>Connecting...</text>
+  <view wx:elif="{{status === 'connecting'}}" class="card row">
+    <view class="status-dot connecting" />
+    <text>连接中…</text>
   </view>
 
-  <view wx:elif="{{status === 'connected'}}" class="card">
-    <text>Listening live</text>
+  <view wx:elif="{{status === 'connected'}}" class="card row">
+    <view class="status-dot connected" />
+    <text>收听中（实时）</text>
   </view>
 
-  <view wx:else class="card">
-    <text>Room ended</text>
-    <button bindtap="goHome">Home</button>
+  <view wx:elif="{{status === 'ended'}}" class="card">
+    <text class="title">房间已结束</text>
+    <text class="hint">导游已关闭本次导览</text>
+    <button class="btn-secondary" bindtap="goHome">返回首页</button>
   </view>
 </view>

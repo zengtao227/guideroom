@@ -1,0 +1,25 @@
+.container { min-height: 100vh; padding: 40rpx; display: flex; flex-direction: column; gap: 24rpx; }
+.card {
+  background: rgba(255,255,255,0.08);
+  border-radius: 24rpx; padding: 32rpx;
+  display: flex; flex-direction: column; gap: 16rpx;
+}
+.card.row { flex-direction: row; align-items: center; gap: 20rpx; }
+.tag { font-size: 22rpx; color: #94a3b8; text-transform: uppercase; }
+.title { font-size: 40rpx; font-weight: bold; }
+.guide { font-size: 28rpx; color: #94a3b8; }
+.hint-main { font-size: 28rpx; color: #cbd5e1; line-height: 1.6; }
+.hint { font-size: 22rpx; color: #64748b; }
+.status-dot { width: 20rpx; height: 20rpx; border-radius: 50%; }
+.status-dot.connecting { background: #f59e0b; }
+.status-dot.connected { background: #22c55e; }
+.btn-primary {
+  width: 100%; padding: 36rpx; border-radius: 100rpx;
+  background: #ffffff; color: #0f172a;
+  font-size: 30rpx; font-weight: bold; border: none;
+}
+.btn-secondary {
+  width: 100%; padding: 32rpx; border-radius: 100rpx;
+  background: transparent; color: #ffffff;
+  font-size: 28rpx; border: 2rpx solid rgba(255,255,255,0.3);
+}

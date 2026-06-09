@@ -10,5 +10,10 @@
     "navigationBarTitleText": "GuideRoom",
     "navigationBarTextStyle": "white"
   },
+  "permission": {
+    "scope.record": {
+      "desc": "导游需要使用麦克风进行语音导览"
+    }
+  },
   "sitemapLocation": "sitemap.json"
 }
