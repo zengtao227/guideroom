@@ -15,6 +15,18 @@ type ListenerRoomProps = {
 
 function ActiveListener() {
   const connectionState = useConnectionState();
+
+  if (connectionState === ConnectionState.Disconnected) {
+    return (
+      <div className="mt-8 rounded-2xl bg-white/10 p-5 ring-1 ring-white/10">
+        <p className="font-semibold">This room has ended.</p>
+        <p className="mt-2 text-sm text-slate-300">
+          The guide has closed the session.
+        </p>
+      </div>
+    );
+  }
+
   const isConnected = connectionState === ConnectionState.Connected;
 
   return (
@@ -64,7 +76,10 @@ export function ListenerRoom({ roomId, wsUrl }: ListenerRoomProps) {
       <div className="mt-8">
         <p className="text-sm text-red-400">{error}</p>
         <button
-          onClick={() => { setError(null); handleStart(); }}
+          onClick={() => {
+            setError(null);
+            handleStart();
+          }}
           className="mt-4 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950"
         >
           Retry

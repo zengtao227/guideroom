@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   LiveKitRoom,
   useConnectionState,
@@ -8,22 +9,31 @@ import {
   useParticipants,
 } from '@livekit/components-react';
 import { ConnectionState } from 'livekit-client';
+import { endRoomAction } from './actions';
 
 type GuideAudioProps = {
   roomId: string;
   wsUrl: string;
 };
 
-function GuideControls() {
+function GuideControls({ roomId }: { roomId: string }) {
   const { isMicrophoneEnabled, localParticipant } = useLocalParticipant();
   const participants = useParticipants();
   const connectionState = useConnectionState();
+  const router = useRouter();
+  const [isEnding, setIsEnding] = useState(false);
 
   const isConnected = connectionState === ConnectionState.Connected;
   const listenerCount = participants.filter((p) => !p.isLocal).length;
 
   async function toggleMic() {
     await localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled);
+  }
+
+  async function handleEndRoom() {
+    setIsEnding(true);
+    await endRoomAction(roomId);
+    router.push('/guide/create');
   }
 
   return (
@@ -60,11 +70,11 @@ function GuideControls() {
           {isMicrophoneEnabled ? 'Stop speaking' : 'Start speaking'}
         </button>
         <button
-          disabled
-          className="rounded-full border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 opacity-40"
-          title="End room — coming in Issue #5"
+          onClick={handleEndRoom}
+          disabled={isEnding}
+          className="rounded-full border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 disabled:opacity-40"
         >
-          End room
+          {isEnding ? 'Ending…' : 'End room'}
         </button>
       </div>
     </>
@@ -101,7 +111,7 @@ export function GuideAudio({ roomId, wsUrl }: GuideAudioProps) {
       audio={false}
       video={false}
     >
-      <GuideControls />
+      <GuideControls roomId={roomId} />
     </LiveKitRoom>
   );
 }
