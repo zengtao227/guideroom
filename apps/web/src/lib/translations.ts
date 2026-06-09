@@ -63,6 +63,7 @@ export type Translations = {
     audioPlaying: string;
     roomEnded: string;
     guideClosedSession: string;
+    guideLeft: string;
   };
 };
 
@@ -127,6 +128,7 @@ const en: Translations = {
     audioPlaying: 'Audio is playing. Use your earphones for the best experience.',
     roomEnded: 'This room has ended.',
     guideClosedSession: 'The guide has closed the session.',
+    guideLeft: 'The guide has left. The session may have ended.',
   },
 };
 
@@ -191,6 +193,7 @@ const zh: Translations = {
     audioPlaying: '音频正在播放，建议使用耳机以获得最佳体验。',
     roomEnded: '此房间已结束。',
     guideClosedSession: '导游已关闭本次导览。',
+    guideLeft: '导游已离开房间，导览可能已结束。',
   },
 };
 
@@ -255,6 +258,7 @@ const de: Translations = {
     audioPlaying: 'Audio läuft. Kopfhörer für beste Erfahrung empfohlen.',
     roomEnded: 'Dieser Raum ist beendet.',
     guideClosedSession: 'Der Reiseführer hat die Sitzung beendet.',
+    guideLeft: 'Der Reiseführer hat den Raum verlassen. Die Führung ist möglicherweise beendet.',
   },
 };
 
@@ -319,6 +323,7 @@ const fr: Translations = {
     audioPlaying: 'Audio en cours. Utilisez vos écouteurs pour une meilleure expérience.',
     roomEnded: 'Cette salle est terminée.',
     guideClosedSession: 'Le guide a clôturé la session.',
+    guideLeft: 'Le guide a quitté la salle. La visite est peut-être terminée.',
   },
 };
 

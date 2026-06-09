@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   LiveKitRoom,
   RoomAudioRenderer,
   useConnectionState,
+  useRemoteParticipants,
 } from '@livekit/components-react';
 import { ConnectionState } from 'livekit-client';
 import { useTranslation } from '@/contexts/LanguageContext';
@@ -16,16 +17,54 @@ type ListenerRoomProps = {
   guideName?: string;
 };
 
+const GUIDE_GONE_DELAY_MS = 30_000;
+
 function ActiveListener() {
   const connectionState = useConnectionState();
+  const remoteParticipants = useRemoteParticipants();
   const { t } = useTranslation();
   const { listenerRoom: l } = t;
+  const [guideGone, setGuideGone] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const isConnected = connectionState === ConnectionState.Connected;
+    const noGuide = remoteParticipants.length === 0;
+
+    if (isConnected && noGuide) {
+      if (!timerRef.current) {
+        timerRef.current = setTimeout(() => setGuideGone(true), GUIDE_GONE_DELAY_MS);
+      }
+    } else {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      setGuideGone(false);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [connectionState, remoteParticipants.length]);
 
   if (connectionState === ConnectionState.Disconnected) {
     return (
       <div className="mt-8 rounded-2xl bg-white/10 p-5 ring-1 ring-white/10">
         <p className="font-semibold">{l.roomEnded}</p>
         <p className="mt-2 text-sm text-slate-300">{l.guideClosedSession}</p>
+      </div>
+    );
+  }
+
+  if (guideGone) {
+    return (
+      <div className="mt-8 rounded-2xl bg-white/10 p-5 ring-1 ring-white/10">
+        <p className="font-semibold">{l.roomEnded}</p>
+        <p className="mt-2 text-sm text-slate-300">{l.guideLeft}</p>
       </div>
     );
   }
