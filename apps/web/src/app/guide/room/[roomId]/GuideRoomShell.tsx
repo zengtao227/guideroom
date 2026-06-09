@@ -16,6 +16,10 @@ type GuideRoomShellProps = {
   wsUrl: string;
 };
 
+function formatDateTime(value: string): string {
+  return value.replace('T', ' ').slice(0, 16) + ' UTC';
+}
+
 export function GuideRoomShell({
   roomId,
   roomTitle,
@@ -61,7 +65,7 @@ export function GuideRoomShell({
             </div>
             <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
               <p className="text-xs uppercase text-slate-500">{g.expiresAt}</p>
-              <p className="mt-2 text-sm font-semibold">{new Date(expiresAt).toLocaleString()}</p>
+              <p className="mt-2 text-sm font-semibold">{formatDateTime(expiresAt)}</p>
             </div>
           </div>
 
