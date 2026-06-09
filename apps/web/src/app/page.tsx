@@ -19,7 +19,7 @@ export default function HomePage() {
           <div className="mt-8">
             <Link
               href="/guide/create"
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+              className="block w-full rounded-full bg-slate-950 px-5 py-4 text-center text-sm font-semibold text-white sm:inline-block sm:w-auto sm:py-3 sm:text-left"
             >
               {h.cta}
             </Link>
