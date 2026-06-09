@@ -1,0 +1,24 @@
+<view class="container">
+  <view class="card">
+    <text>GuideRoom Listener</text>
+    <text>{{title || 'GuideRoom session'}}</text>
+  </view>
+
+  <view wx:if="{{status === 'idle'}}" class="card">
+    <text>Please use earphones, then tap Start.</text>
+    <button bindtap="startListening">Start listening</button>
+  </view>
+
+  <view wx:elif="{{status === 'connecting'}}" class="card">
+    <text>Connecting...</text>
+  </view>
+
+  <view wx:elif="{{status === 'connected'}}" class="card">
+    <text>Listening live</text>
+  </view>
+
+  <view wx:else class="card">
+    <text>Room ended</text>
+    <button bindtap="goHome">Home</button>
+  </view>
+</view>
