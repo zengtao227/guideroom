@@ -154,3 +154,31 @@ guideroom.zengsg.dpdns.org {
 - 将 `miniprogram/project.config.json` 中 `YOUR_APPID_HERE` 替换为真实 AppID
 - 在微信公众平台后台将 `guideroom.zengsg.dpdns.org` 加入合法域名白名单
 - 正式对中国用户上线时，将中继服务器迁移至国内 ECS
+
+---
+
+## 开发路线图
+
+### 已完成
+
+- [x] Web 版：首页、创建房间、导游控制台、听众收听（EN/ZH/DE/FR）
+- [x] LiveKit 自建于 Frankfurt VPS，WebRTC 音频正常
+- [x] 微信小程序：三页骨架（index/guide/listener）
+- [x] 中继服务器：HTTP API + WebSocket 音频广播，部署于 Frankfurt VPS (PM2, port 4002/4003)
+- [x] Caddy 路由更新，公网 HTTPS 接口验证通过
+
+### 待完成（技术）
+
+- [ ] 在微信开发者工具模拟器中端到端测试（创建房间 → 导游开麦 → 听众收听）
+- [ ] 修复模拟器测试中发现的问题
+- [ ] 中继服务器添加 `pm2 startup` 开机自启（`ssh frank "pm2 startup"` 然后执行它输出的命令）
+
+### 待完成（商业/运营）
+
+- [ ] 朋友注册中国一人有限公司
+- [ ] 用企业主体申请微信小程序账号，获取正式 AppID
+- [ ] 将 `miniprogram/project.config.json` 中 `YOUR_APPID_HERE` 改为真实 AppID
+- [ ] 微信公众平台后台配置合法域名：`guideroom.zengsg.dpdns.org`
+- [ ] 将中继服务器迁移至国内 ECS（阿里云/腾讯云），更新 `app.js` 中 `relayBase`
+- [ ] 申请微信支付商户号，集成付款（每次导览 5-10 元）
+- [ ] 提交小程序审核，上线
