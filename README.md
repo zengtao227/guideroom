@@ -36,3 +36,10 @@ npm run dev
 ```
 
 Then open http://localhost:3000.
+
+## Room state
+
+Room metadata is stored in a small JSON file so newly created rooms survive a
+server module reload or Docker container restart. Local development uses the OS
+temp directory by default. Production Docker sets `GUIDEROOM_ROOM_STORE_PATH` to
+`/app/data/rooms.json` and mounts `/app/data` as a persistent volume.

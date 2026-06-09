@@ -11,4 +11,10 @@ services:
       LIVEKIT_URL: ${LIVEKIT_URL}
       LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
       LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      GUIDEROOM_ROOM_STORE_PATH: /app/data/rooms.json
+    volumes:
+      - guideroom_data:/app/data
     restart: unless-stopped
+
+volumes:
+  guideroom_data:
