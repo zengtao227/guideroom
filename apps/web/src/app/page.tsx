@@ -16,19 +16,13 @@ export default function HomePage() {
           </p>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{h.headline}</h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">{h.description}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8">
             <Link
               href="/guide/create"
               className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
             >
               {h.cta}
             </Link>
-            <a
-              href="#how-it-works"
-              className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800"
-            >
-              {h.howItWorks}
-            </a>
           </div>
         </div>
 

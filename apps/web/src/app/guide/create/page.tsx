@@ -39,11 +39,10 @@ export default function CreateRoomPage() {
             <select
               name="duration"
               className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-              defaultValue="3h"
+              defaultValue="1h"
             >
               <option value="1h">{c.duration1h}</option>
-              <option value="3h">{c.duration3h}</option>
-              <option value="half-day">{c.durationHalfDay}</option>
+              <option value="4h">{c.duration4h}</option>
             </select>
           </label>
 

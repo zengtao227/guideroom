@@ -13,7 +13,6 @@ export type Translations = {
     headline: string;
     description: string;
     cta: string;
-    howItWorks: string;
     steps: [string, string, string];
   };
   createRoom: {
@@ -24,8 +23,7 @@ export type Translations = {
     titlePlaceholder: string;
     durationLabel: string;
     duration1h: string;
-    duration3h: string;
-    durationHalfDay: string;
+    duration4h: string;
     guideNameLabel: string;
     guideNamePlaceholder: string;
     errorTitleRequired: string;
@@ -74,7 +72,6 @@ const en: Translations = {
     description:
       'Visitors scan a QR code and listen to the guide with their own phones and earphones. No dedicated receiver hardware required.',
     cta: 'Create a room',
-    howItWorks: 'How it works',
     steps: [
       'Guide creates a live audio room.',
       'Guide shows the QR code to visitors.',
@@ -89,8 +86,7 @@ const en: Translations = {
     titlePlaceholder: 'Basel Old Town Tour',
     durationLabel: 'Duration',
     duration1h: '1 hour',
-    duration3h: '3 hours',
-    durationHalfDay: 'Half day (4 hours)',
+    duration4h: '4 hours',
     guideNameLabel: 'Guide name (optional)',
     guideNamePlaceholder: 'Tao',
     errorTitleRequired: 'Room title is required.',
@@ -139,7 +135,6 @@ const zh: Translations = {
     description:
       '访客扫描二维码，用自己的手机和耳机收听导游讲解。无需专用接收设备。',
     cta: '创建房间',
-    howItWorks: '使用方法',
     steps: [
       '导游创建直播音频房间。',
       '导游向访客展示二维码。',
@@ -154,8 +149,7 @@ const zh: Translations = {
     titlePlaceholder: '巴塞尔老城导览',
     durationLabel: '时长',
     duration1h: '1小时',
-    duration3h: '3小时',
-    durationHalfDay: '半天（4小时）',
+    duration4h: '4小时',
     guideNameLabel: '导游姓名（可选）',
     guideNamePlaceholder: '小陶',
     errorTitleRequired: '请输入房间名称。',
@@ -204,7 +198,6 @@ const de: Translations = {
     description:
       'Besucher scannen einen QR-Code und hören dem Reiseführer mit ihrem eigenen Handy und Kopfhörern zu. Keine spezielle Empfänger-Hardware erforderlich.',
     cta: 'Raum erstellen',
-    howItWorks: 'So funktioniert\'s',
     steps: [
       'Reiseführer erstellt einen Live-Audioraum.',
       'Reiseführer zeigt den QR-Code den Besuchern.',
@@ -219,8 +212,7 @@ const de: Translations = {
     titlePlaceholder: 'Altstadt-Führung Basel',
     durationLabel: 'Dauer',
     duration1h: '1 Stunde',
-    duration3h: '3 Stunden',
-    durationHalfDay: 'Halber Tag (4 Stunden)',
+    duration4h: '4 Stunden',
     guideNameLabel: 'Name des Führers (optional)',
     guideNamePlaceholder: 'Max',
     errorTitleRequired: 'Raumname ist erforderlich.',
@@ -269,7 +261,6 @@ const fr: Translations = {
     description:
       'Les visiteurs scannent un QR code et écoutent le guide avec leur propre téléphone et écouteurs. Aucun matériel récepteur dédié requis.',
     cta: 'Créer une salle',
-    howItWorks: 'Comment ça marche',
     steps: [
       'Le guide crée une salle audio en direct.',
       'Le guide montre le QR code aux visiteurs.',
@@ -284,8 +275,7 @@ const fr: Translations = {
     titlePlaceholder: 'Visite vieille ville de Bâle',
     durationLabel: 'Durée',
     duration1h: '1 heure',
-    duration3h: '3 heures',
-    durationHalfDay: 'Demi-journée (4 heures)',
+    duration4h: '4 heures',
     guideNameLabel: 'Nom du guide (optionnel)',
     guideNamePlaceholder: 'Pierre',
     errorTitleRequired: 'Le nom de la salle est requis.',
