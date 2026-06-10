@@ -125,6 +125,8 @@ ssh frank "pm2 logs guideroom-relay --lines 50"
 ssh frank "pm2 restart guideroom-relay"
 ```
 
+pm2 已配置开机自启（`pm2-opc.service` systemd unit，`pm2 save` 已保存进程列表）。
+
 ### 部署中继服务器（首次）
 
 ```bash
@@ -166,12 +168,16 @@ guideroom.zengsg.dpdns.org {
 - [x] 微信小程序：三页骨架（index/guide/listener）
 - [x] 中继服务器：HTTP API + WebSocket 音频广播，部署于 Frankfurt VPS (PM2, port 4002/4003)
 - [x] Caddy 路由更新，公网 HTTPS 接口验证通过
+- [x] relay server：30s server-side ping（防 Cloudflare 100s 超时）
+- [x] relay server：导游断线 10 分钟宽限期，断线时通知听众倒计时，重连时自动恢复
+- [x] relay server：文字/二进制消息分离转发（支持 mimeType 协商）
+- [x] 浏览器端到端测试页 `/relay-test.html`：导游录音广播 + 听众 MSE 播放 + 重连按钮
+- [x] pm2 开机自启（pm2-opc.service systemd）
 
 ### 待完成（技术）
 
-- [ ] 在微信开发者工具模拟器中端到端测试（创建房间 → 导游开麦 → 听众收听）
-- [ ] 修复模拟器测试中发现的问题
-- [ ] 中继服务器添加 `pm2 startup` 开机自启（`ssh frank "pm2 startup"` 然后执行它输出的命令）
+- [ ] 用真机测试小程序（导游开麦 → 听众收听），需等 AppID 注册后通过「体验版」分发
+- [ ] 小程序导游端：`onHide/onShow` 重连逻辑（切 app 后回来自动重连 WS）
 
 ### 待完成（商业/运营）
 
