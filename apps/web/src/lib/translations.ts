@@ -54,6 +54,18 @@ export type Translations = {
     listenerLink: string;
     connectingToRoom: string;
     failedToConnect: string;
+    micPermissionGranted: string;
+    micPermissionPrompt: string;
+    micPermissionDenied: string;
+    micPermissionUnsupported: string;
+    micPermissionUnknown: string;
+    micRequesting: string;
+    micInsecureContext: string;
+    micUnsupportedBrowser: string;
+    micNotFound: string;
+    micNotReadable: string;
+    micAccessFailed: string;
+    micEnableHelp: string;
   };
   listenerRoom: {
     tag: string;
@@ -126,6 +138,18 @@ const en: Translations = {
     listenerLink: 'Listener link',
     connectingToRoom: 'Connecting to room…',
     failedToConnect: 'Failed to connect to room',
+    micPermissionGranted: 'Microphone permission granted',
+    micPermissionPrompt: 'Tap the button if the browser asks for microphone permission',
+    micPermissionDenied: 'Microphone permission was denied',
+    micPermissionUnsupported: 'This browser does not expose microphone permission status',
+    micPermissionUnknown: 'Checking microphone permission…',
+    micRequesting: 'Requesting microphone…',
+    micInsecureContext: 'Microphone requires HTTPS or localhost.',
+    micUnsupportedBrowser: 'This browser does not support microphone capture.',
+    micNotFound: 'No microphone was found on this device.',
+    micNotReadable: 'The microphone is busy or blocked by the system.',
+    micAccessFailed: 'Could not start the microphone.',
+    micEnableHelp: 'Please allow microphone access in the browser or system site settings, then tap Start speaking again. On some Android phones, also check App permissions → Microphone for the browser.',
   },
   listenerRoom: {
     tag: 'GuideRoom listener',
@@ -198,6 +222,18 @@ const zh: Translations = {
     listenerLink: '收听链接',
     connectingToRoom: '正在连接房间…',
     failedToConnect: '连接房间失败',
+    micPermissionGranted: '麦克风权限已允许',
+    micPermissionPrompt: '如果浏览器弹出麦克风授权，请点击允许',
+    micPermissionDenied: '麦克风权限已被拒绝',
+    micPermissionUnsupported: '此浏览器无法读取麦克风权限状态',
+    micPermissionUnknown: '正在检查麦克风权限…',
+    micRequesting: '正在请求麦克风…',
+    micInsecureContext: '麦克风功能需要 HTTPS 或 localhost。',
+    micUnsupportedBrowser: '此浏览器不支持网页麦克风采集。',
+    micNotFound: '此设备没有检测到可用麦克风。',
+    micNotReadable: '麦克风正被系统或其他应用占用，或被系统阻止。',
+    micAccessFailed: '无法启动麦克风。',
+    micEnableHelp: '请在浏览器或系统的网站权限中允许麦克风，然后再次点击“开始讲话”。部分安卓手机还需要到系统设置 → 应用权限 → 麦克风，确认当前浏览器已获得权限。',
   },
   listenerRoom: {
     tag: 'GuideRoom 听众端',
@@ -270,6 +306,18 @@ const de: Translations = {
     listenerLink: 'Zuhörer-Link',
     connectingToRoom: 'Verbinde mit Raum…',
     failedToConnect: 'Verbindung fehlgeschlagen',
+    micPermissionGranted: 'Mikrofonberechtigung erteilt',
+    micPermissionPrompt: 'Tippe auf die Schaltfläche und erlaube den Mikrofonzugriff im Browser',
+    micPermissionDenied: 'Mikrofonberechtigung wurde verweigert',
+    micPermissionUnsupported: 'Dieser Browser zeigt den Mikrofon-Berechtigungsstatus nicht an',
+    micPermissionUnknown: 'Mikrofonberechtigung wird geprüft…',
+    micRequesting: 'Mikrofon wird angefordert…',
+    micInsecureContext: 'Das Mikrofon benötigt HTTPS oder localhost.',
+    micUnsupportedBrowser: 'Dieser Browser unterstützt keine Mikrofonaufnahme.',
+    micNotFound: 'Auf diesem Gerät wurde kein Mikrofon gefunden.',
+    micNotReadable: 'Das Mikrofon ist belegt oder vom System blockiert.',
+    micAccessFailed: 'Das Mikrofon konnte nicht gestartet werden.',
+    micEnableHelp: 'Bitte erlaube den Mikrofonzugriff in den Browser- oder Website-Einstellungen und tippe erneut auf Sprechen. Auf manchen Android-Geräten auch die App-Berechtigung Mikrofon für den Browser prüfen.',
   },
   listenerRoom: {
     tag: 'GuideRoom Zuhörer',
@@ -342,6 +390,18 @@ const fr: Translations = {
     listenerLink: 'Lien d\'écoute',
     connectingToRoom: 'Connexion en cours…',
     failedToConnect: 'Échec de connexion',
+    micPermissionGranted: 'Autorisation microphone accordée',
+    micPermissionPrompt: 'Appuyez sur le bouton et autorisez le microphone dans le navigateur',
+    micPermissionDenied: 'L\'autorisation du microphone a été refusée',
+    micPermissionUnsupported: 'Ce navigateur n\'affiche pas l\'état de l\'autorisation microphone',
+    micPermissionUnknown: 'Vérification de l\'autorisation microphone…',
+    micRequesting: 'Demande du microphone…',
+    micInsecureContext: 'Le microphone nécessite HTTPS ou localhost.',
+    micUnsupportedBrowser: 'Ce navigateur ne prend pas en charge la capture microphone.',
+    micNotFound: 'Aucun microphone n\'a été trouvé sur cet appareil.',
+    micNotReadable: 'Le microphone est occupé ou bloqué par le système.',
+    micAccessFailed: 'Impossible de démarrer le microphone.',
+    micEnableHelp: 'Veuillez autoriser le microphone dans les paramètres du navigateur ou du site, puis appuyez de nouveau sur Commencer à parler. Sur certains appareils Android, vérifiez aussi l\'autorisation Microphone de l\'application navigateur.',
   },
   listenerRoom: {
     tag: 'GuideRoom auditeur',
