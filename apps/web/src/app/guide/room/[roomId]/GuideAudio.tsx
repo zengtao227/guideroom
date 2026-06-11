@@ -8,7 +8,7 @@ import {
   useLocalParticipant,
   useParticipants,
 } from '@livekit/components-react';
-import { ConnectionState } from 'livekit-client';
+import { ConnectionState, MediaDeviceFailure } from 'livekit-client';
 import { endRoomAction } from './actions';
 import { useTranslation } from '@/contexts/LanguageContext';
 
@@ -18,6 +18,32 @@ type GuideAudioProps = {
 };
 
 type MicPermissionState = PermissionState | 'unsupported' | 'unknown';
+type GuideRoomTranslations = ReturnType<typeof useTranslation>['t']['guideRoom'];
+
+function explainMicStartupError(error: unknown, guideRoom: GuideRoomTranslations): string | null {
+  const errorName = error instanceof Error ? error.name : '';
+  const errorMessage = error instanceof Error ? error.message : String(error ?? '');
+  const normalizedError = `${errorName} ${errorMessage}`.toLowerCase();
+
+  if (normalizedError.includes('permission') || normalizedError.includes('notallowed')) {
+    return guideRoom.micPermissionDenied;
+  }
+
+  if (normalizedError.includes('notfound') || normalizedError.includes('devicesnotfound')) {
+    return guideRoom.micNotFound;
+  }
+
+  if (
+    normalizedError.includes('notreadable') ||
+    normalizedError.includes('trackstart') ||
+    normalizedError.includes('deviceinuse') ||
+    normalizedError.includes('in use')
+  ) {
+    return guideRoom.micNotReadable;
+  }
+
+  return null;
+}
 
 function GuideControls({ roomId, startupMicError }: { roomId: string; startupMicError: string | null }) {
   const { isMicrophoneEnabled, localParticipant } = useLocalParticipant();
@@ -227,14 +253,27 @@ export function GuideAudio({ roomId, wsUrl }: GuideAudioProps) {
       connect
       audio
       video={false}
-      onError={(liveKitError) => setError(liveKitError.message || g.failedToConnect)}
+      onError={(liveKitError) => {
+        const micStartupError = explainMicStartupError(liveKitError, g);
+
+        if (micStartupError) {
+          setStartupMicError(micStartupError);
+          return;
+        }
+
+        setError(liveKitError.message || g.failedToConnect);
+      }}
       onMediaDeviceFailure={(failure, kind) => {
         if (!kind || kind === 'audioinput') {
-          setStartupMicError(
-            failure === 'NotAllowedError' || failure === 'PermissionDeniedError'
-              ? g.micPermissionDenied
-              : g.micAccessFailed,
-          );
+          if (failure === MediaDeviceFailure.PermissionDenied) {
+            setStartupMicError(g.micPermissionDenied);
+          } else if (failure === MediaDeviceFailure.NotFound) {
+            setStartupMicError(g.micNotFound);
+          } else if (failure === MediaDeviceFailure.DeviceInUse) {
+            setStartupMicError(g.micNotReadable);
+          } else {
+            setStartupMicError(g.micAccessFailed);
+          }
         }
       }}
     >
