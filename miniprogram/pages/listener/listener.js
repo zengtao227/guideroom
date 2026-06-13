@@ -1,8 +1,10 @@
 const fs = wx.getFileSystemManager();
+const MAX_AUDIO_QUEUE_LENGTH = 30;
+const MAX_AUDIO_CHUNK_BYTES = 256 * 1024;
 
 Page({
   data: {
-    roomId: '',
+    listenerToken: '',
     title: '',
     guideName: '',
     status: 'idle', // idle | connecting | connected | guide_away | ended
@@ -17,11 +19,11 @@ Page({
   graceTimer: null,
 
   onLoad(options) {
-    const roomId = options.roomId || '';
-    this.setData({ roomId });
+    const listenerToken = options.listenerToken || options.roomId || '';
+    this.setData({ listenerToken });
     const app = getApp();
     wx.request({
-      url: app.globalData.relayBase + '/relay-api/rooms/' + roomId,
+      url: app.globalData.relayBase + '/relay-api/rooms/' + encodeURIComponent(listenerToken),
       success: (res) => {
         if (res.statusCode === 200 && res.data) {
           this.setData({ title: res.data.title || '', guideName: res.data.guideName || '' });
@@ -44,7 +46,7 @@ Page({
     const app = getApp();
     const base = app.globalData.relayBase.replace('https://', 'wss://').replace('http://', 'ws://');
     this.ws = wx.connectSocket({
-      url: base + '/relay-ws?roomId=' + this.data.roomId + '&role=listener',
+      url: base + '/relay-ws?listenerToken=' + encodeURIComponent(this.data.listenerToken) + '&role=listener',
       fail: () => this.setData({ status: 'ended' }),
     });
 
@@ -67,6 +69,16 @@ Page({
         } catch (_) {}
         return;
       }
+
+      if (!res.data || res.data.byteLength > MAX_AUDIO_CHUNK_BYTES) {
+        return;
+      }
+
+      while (this.audioQueue.length >= MAX_AUDIO_QUEUE_LENGTH) {
+        const droppedPath = this.audioQueue.shift();
+        this._deleteFile(droppedPath);
+      }
+
       // Binary: AAC audio chunk — write to temp file and queue for playback
       this.chunkIndex += 1;
       const path = wx.env.USER_DATA_PATH + '/gr_' + this.chunkIndex + '.aac';
@@ -86,6 +98,10 @@ Page({
     });
   },
 
+  _deleteFile(path) {
+    if (path) fs.unlink({ filePath: path, fail: () => {} });
+  },
+
   _playNext() {
     if (this.audioQueue.length === 0) {
       this.isPlaying = false;
@@ -96,7 +112,7 @@ Page({
     this.audioCtx.src = path;
     this.audioCtx.play();
     // Delete the file after a delay to avoid filling storage
-    setTimeout(() => fs.unlink({ filePath: path, fail: () => {} }), 8000);
+    setTimeout(() => this._deleteFile(path), 8000);
   },
 
   _startGraceCountdown(expiresAt) {
@@ -122,6 +138,7 @@ Page({
     this._stopGraceCountdown();
     if (this.ws) { this.ws.close({}); this.ws = null; }
     if (this.audioCtx) { this.audioCtx.stop(); this.audioCtx.destroy(); this.audioCtx = null; }
+    this.audioQueue.forEach((path) => this._deleteFile(path));
     this.audioQueue = [];
     this.isPlaying = false;
   },
