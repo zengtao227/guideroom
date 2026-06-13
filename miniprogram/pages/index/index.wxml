@@ -13,7 +13,7 @@
       扫码收听（访客）
     </button>
     <view class="input-row">
-      <input class="room-input" placeholder="或手动输入房间ID" value="{{roomIdInput}}" bindinput="onRoomIdInput" placeholder-class="input-placeholder" />
+      <input class="room-input" placeholder="或手动输入房间码" value="{{roomIdInput}}" bindinput="onRoomIdInput" placeholder-class="input-placeholder" />
       <button class="btn-enter" bindtap="enterRoomId">进入</button>
     </view>
   </view>
