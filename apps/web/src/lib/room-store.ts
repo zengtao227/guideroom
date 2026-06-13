@@ -85,7 +85,7 @@ function coerceRoom(value: unknown): Room | undefined {
   return {
     id: candidate.id,
     title: candidate.title,
-    guideName: candidate.guideName,
+    guideName: typeof candidate.guideName === 'string' ? candidate.guideName : undefined,
     durationHours: candidate.durationHours,
     createdAt: candidate.createdAt,
     expiresAt: candidate.expiresAt,
