@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getRoom } from '@/lib/room-store';
+import { getRoomByListenerToken } from '@/lib/room-store';
 import { ListenerRoom } from './ListenerRoom';
 
 type ListenPageProps = {
@@ -7,8 +7,8 @@ type ListenPageProps = {
 };
 
 export default async function ListenPage({ params }: ListenPageProps) {
-  const { roomId } = await params;
-  const room = getRoom(roomId);
+  const { roomId: listenerToken } = await params;
+  const room = getRoomByListenerToken(listenerToken);
 
   if (!room) {
     notFound();
@@ -18,7 +18,7 @@ export default async function ListenPage({ params }: ListenPageProps) {
 
   return (
     <ListenerRoom
-      roomId={roomId}
+      listenerToken={listenerToken}
       wsUrl={wsUrl}
       roomTitle={room.title}
       guideName={room.guideName}
