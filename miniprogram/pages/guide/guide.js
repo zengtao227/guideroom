@@ -3,6 +3,8 @@ const recorder = wx.getRecorderManager();
 Page({
   data: {
     roomId: '',
+    listenerToken: '',
+    guideToken: '',
     qrcodeUrl: '',
     listenerCount: 0,
     micOn: false,
@@ -13,18 +15,27 @@ Page({
 
   onLoad(options) {
     const roomId = options.roomId || '';
+    const listenerToken = options.listenerToken || '';
+    const guideToken = options.guideToken || '';
     const app = getApp();
-    const qrcodeUrl = app.globalData.relayBase + '/relay-api/rooms/' + roomId + '/qrcode';
-    this.setData({ roomId, qrcodeUrl });
-    this._connectWs(roomId);
+    const qrcodeUrl = app.globalData.relayBase + '/relay-api/rooms/' + encodeURIComponent(listenerToken) + '/qrcode';
+    this.setData({ roomId, listenerToken, guideToken, qrcodeUrl });
+    this._connectWs(roomId, guideToken);
     this._setupRecorder();
   },
 
-  _connectWs(roomId) {
+  _connectWs(roomId, guideToken) {
+    if (!roomId || !guideToken) {
+      wx.showToast({ title: '导游权限无效', icon: 'none' });
+      return;
+    }
+
     const app = getApp();
     const base = app.globalData.relayBase.replace('https://', 'wss://').replace('http://', 'ws://');
     this.ws = wx.connectSocket({
-      url: base + '/relay-ws?roomId=' + roomId + '&role=guide',
+      url: base
+        + '/relay-ws?roomId=' + encodeURIComponent(roomId)
+        + '&role=guide&guideToken=' + encodeURIComponent(guideToken),
       fail: () => wx.showToast({ title: '连接失败', icon: 'none' }),
     });
     this.ws.onMessage((res) => {
@@ -54,8 +65,8 @@ Page({
 
   copyRoomId() {
     wx.setClipboardData({
-      data: this.data.roomId,
-      success: () => wx.showToast({ title: '已复制房间ID', icon: 'success' }),
+      data: this.data.listenerToken,
+      success: () => wx.showToast({ title: '已复制房间码', icon: 'success' }),
     });
   },
 
