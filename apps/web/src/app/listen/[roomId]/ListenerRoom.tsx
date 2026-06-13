@@ -11,7 +11,7 @@ import { ConnectionState } from 'livekit-client';
 import { useTranslation } from '@/contexts/LanguageContext';
 
 type ListenerRoomProps = {
-  roomId: string;
+  listenerToken: string;
   wsUrl: string;
   roomTitle: string;
   guideName?: string;
@@ -97,7 +97,7 @@ function ActiveListener() {
   );
 }
 
-export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName, status, expiresAt }: ListenerRoomProps) {
+export function ListenerRoom({ listenerToken, wsUrl, roomTitle, guideName, status, expiresAt }: ListenerRoomProps) {
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
@@ -106,9 +106,8 @@ export function ListenerRoom({ roomId, wsUrl, roomTitle, guideName, status, expi
 
   async function handleStart() {
     try {
-      const res = await fetch(
-        `/api/livekit-token?roomId=${encodeURIComponent(roomId)}&role=listener`,
-      );
+      const params = new URLSearchParams({ listenerToken, role: 'listener' });
+      const res = await fetch(`/api/livekit-token?${params.toString()}`);
       const data: { token?: string; error?: string } = await res.json();
       if (data.token) {
         setToken(data.token);

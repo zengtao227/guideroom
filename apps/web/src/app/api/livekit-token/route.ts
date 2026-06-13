@@ -1,24 +1,40 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { NextRequest } from 'next/server';
-import { getRemainingRoomSeconds, getRoom } from '@/lib/room-store';
+import { getRemainingRoomSeconds, getRoomByListenerToken, getRoomForGuide, Room } from '@/lib/room-store';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest) {
+function getRoomForRole(req: NextRequest, role: string | null): Room | undefined {
   const { searchParams } = req.nextUrl;
-  const roomId = searchParams.get('roomId');
-  const role = searchParams.get('role') as 'guide' | 'listener' | null;
 
-  if (!roomId || !role) {
-    return Response.json({ error: 'roomId and role are required' }, { status: 400 });
+  if (role === 'guide') {
+    const roomId = searchParams.get('roomId') ?? '';
+    const guideToken = searchParams.get('guideToken') ?? '';
+    return getRoomForGuide(roomId, guideToken);
   }
 
-  const room = getRoom(roomId);
-  const remainingSeconds = getRemainingRoomSeconds(roomId);
+  if (role === 'listener') {
+    const listenerToken = searchParams.get('listenerToken') ?? '';
+    return getRoomByListenerToken(listenerToken);
+  }
+
+  return undefined;
+}
+
+export async function GET(req: NextRequest) {
+  const role = req.nextUrl.searchParams.get('role');
+
+  if (role !== 'guide' && role !== 'listener') {
+    return Response.json({ error: 'valid role is required' }, { status: 400 });
+  }
+
+  const room = getRoomForRole(req, role);
 
   if (!room) {
     return Response.json({ error: 'Room not found' }, { status: 404 });
   }
+
+  const remainingSeconds = getRemainingRoomSeconds(room.id);
 
   if (room.status !== 'active' || !remainingSeconds) {
     return Response.json({ error: 'Room is no longer active' }, { status: 410 });
@@ -32,13 +48,13 @@ export async function GET(req: NextRequest) {
   }
 
   const at = new AccessToken(apiKey, apiSecret, {
-    identity: `${role}-${Date.now()}`,
+    identity: `${role}-${crypto.randomUUID()}`,
     name: role === 'guide' ? 'Guide' : 'Visitor',
     ttl: Math.max(60, remainingSeconds),
   });
 
   at.addGrant({
-    room: roomId,
+    room: room.livekitRoomName,
     roomJoin: true,
     canPublish: role === 'guide',
     canSubscribe: role === 'listener',
