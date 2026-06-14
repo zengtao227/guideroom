@@ -2,8 +2,8 @@
   <view class="card qr-card">
     <text class="label">让访客用微信扫此二维码收听</text>
     <image class="qrcode" src="{{qrcodeUrl}}" mode="aspectFit" />
-    <text class="room-id" bindtap="copyRoomId">{{roomId}}</text>
-    <text class="hint">点击房间ID可复制</text>
+    <text class="room-id" bindtap="copyRoomId">{{listenerToken}}</text>
+    <text class="hint">点击房间码可复制</text>
   </view>
 
   <view class="card row">

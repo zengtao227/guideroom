@@ -6,6 +6,7 @@ import { GuideAudio } from './GuideAudio';
 
 type GuideRoomShellProps = {
   roomId: string;
+  guideToken: string;
   roomTitle: string;
   guideName?: string;
   durationHours: number;
@@ -22,6 +23,7 @@ function formatDateTime(value: string): string {
 
 export function GuideRoomShell({
   roomId,
+  guideToken,
   roomTitle,
   guideName,
   durationHours,
@@ -70,7 +72,7 @@ export function GuideRoomShell({
           </div>
 
           {isActive ? (
-            <GuideAudio roomId={roomId} wsUrl={wsUrl} />
+            <GuideAudio roomId={roomId} guideToken={guideToken} wsUrl={wsUrl} />
           ) : (
             <div className="mt-8 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
               <p className="font-semibold">

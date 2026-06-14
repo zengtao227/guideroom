@@ -14,6 +14,7 @@ import { useTranslation } from '@/contexts/LanguageContext';
 
 type GuideAudioProps = {
   roomId: string;
+  guideToken: string;
   wsUrl: string;
 };
 
@@ -45,7 +46,15 @@ function explainMicStartupError(error: unknown, guideRoom: GuideRoomTranslations
   return null;
 }
 
-function GuideControls({ roomId, startupMicError }: { roomId: string; startupMicError: string | null }) {
+function GuideControls({
+  roomId,
+  guideToken,
+  startupMicError,
+}: {
+  roomId: string;
+  guideToken: string;
+  startupMicError: string | null;
+}) {
   const { isMicrophoneEnabled, localParticipant } = useLocalParticipant();
   const participants = useParticipants();
   const connectionState = useConnectionState();
@@ -160,7 +169,7 @@ function GuideControls({ roomId, startupMicError }: { roomId: string; startupMic
 
   async function handleEndRoom() {
     setIsEnding(true);
-    await endRoomAction(roomId);
+    await endRoomAction(roomId, guideToken);
     router.push('/guide/create');
   }
 
@@ -221,7 +230,7 @@ function GuideControls({ roomId, startupMicError }: { roomId: string; startupMic
   );
 }
 
-export function GuideAudio({ roomId, wsUrl }: GuideAudioProps) {
+export function GuideAudio({ roomId, guideToken, wsUrl }: GuideAudioProps) {
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [startupMicError, setStartupMicError] = useState<string | null>(null);
@@ -229,14 +238,16 @@ export function GuideAudio({ roomId, wsUrl }: GuideAudioProps) {
   const { guideRoom: g } = t;
 
   useEffect(() => {
-    fetch(`/api/livekit-token?roomId=${encodeURIComponent(roomId)}&role=guide`)
+    const params = new URLSearchParams({ roomId, guideToken, role: 'guide' });
+
+    fetch(`/api/livekit-token?${params.toString()}`)
       .then((r) => r.json())
       .then((data: { token?: string; error?: string }) => {
         if (data.token) setToken(data.token);
         else setError(data.error ?? g.failedToConnect);
       })
       .catch(() => setError(g.failedToConnect));
-  }, [roomId, g.failedToConnect]);
+  }, [roomId, guideToken, g.failedToConnect]);
 
   if (error) {
     return <p className="mt-8 text-sm text-red-600">{error}</p>;
@@ -277,7 +288,7 @@ export function GuideAudio({ roomId, wsUrl }: GuideAudioProps) {
         }
       }}
     >
-      <GuideControls roomId={roomId} startupMicError={startupMicError} />
+      <GuideControls roomId={roomId} guideToken={guideToken} startupMicError={startupMicError} />
     </LiveKitRoom>
   );
 }

@@ -12,12 +12,16 @@ Page({
       header: { 'Content-Type': 'application/json' },
       success: (res) => {
         const room = res.data;
-        if (!room || !room.roomId) {
+        if (!room || !room.roomId || !room.listenerToken || !room.guideToken) {
           wx.showToast({ title: 'Create failed', icon: 'none' });
           return;
         }
         wx.navigateTo({
-          url: '/pages/guide/guide?roomId=' + room.roomId + '&title=' + encodeURIComponent(room.title || '') + '&expiresAt=' + encodeURIComponent(room.expiresAt || ''),
+          url: '/pages/guide/guide?roomId=' + room.roomId
+            + '&listenerToken=' + encodeURIComponent(room.listenerToken)
+            + '&guideToken=' + encodeURIComponent(room.guideToken)
+            + '&title=' + encodeURIComponent(room.title || '')
+            + '&expiresAt=' + encodeURIComponent(room.expiresAt || ''),
         });
       },
       fail: () => wx.showToast({ title: 'Create failed', icon: 'none' }),
@@ -30,23 +34,23 @@ Page({
   },
 
   enterRoomId() {
-    const roomId = this.data.roomIdInput.trim();
-    if (!roomId) {
-      wx.showToast({ title: '请输入房间ID', icon: 'none' });
+    const listenerToken = this.data.roomIdInput.trim();
+    if (!listenerToken) {
+      wx.showToast({ title: '请输入房间码', icon: 'none' });
       return;
     }
-    wx.navigateTo({ url: '/pages/listener/listener?roomId=' + roomId });
+    wx.navigateTo({ url: '/pages/listener/listener?listenerToken=' + encodeURIComponent(listenerToken) });
   },
 
   scanToListen() {
     wx.scanCode({
       success: (res) => {
-        const roomId = (res.result || '').trim();
-        if (!roomId) {
+        const listenerToken = (res.result || '').trim();
+        if (!listenerToken) {
           wx.showToast({ title: 'Invalid room code', icon: 'none' });
           return;
         }
-        wx.navigateTo({ url: '/pages/listener/listener?roomId=' + roomId });
+        wx.navigateTo({ url: '/pages/listener/listener?listenerToken=' + encodeURIComponent(listenerToken) });
       },
     });
   },
