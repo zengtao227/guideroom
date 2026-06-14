@@ -11,7 +11,7 @@ ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 WORKDIR /app/apps/web
-RUN npm run build
+RUN mkdir -p public && npm run build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
