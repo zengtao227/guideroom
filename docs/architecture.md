@@ -19,10 +19,10 @@ Using LiveKit helps avoid spending too much time on low-level WebRTC signaling, 
 
 1. Guide creates a GuideRoom room in the web app.
 2. App creates or references a matching LiveKit room.
-3. App generates a listener URL.
+3. App generates separate guide and listener capability tokens.
 4. QR code displays the listener URL.
-5. Guide joins as publisher.
-6. Listener joins as subscriber.
+5. Guide joins as publisher with `roomId + guideToken`.
+6. Listener joins as subscriber with `listenerToken`.
 7. Guide microphone audio is published into the LiveKit room.
 8. Listeners subscribe to the audio track.
 9. When the guide ends the session, the room is marked as ended.
@@ -32,8 +32,8 @@ Using LiveKit helps avoid spending too much time on low-level WebRTC signaling, 
 ```text
 /
 /guide/create
-/guide/room/[roomId]
-/listen/[roomId]
+/guide/room/[roomId]?guideToken=...
+/listen/[listenerToken]
 ```
 
 ## Proposed data model
@@ -47,6 +47,8 @@ type Room = {
   expiresAt: string;
   status: 'active' | 'ended' | 'expired';
   livekitRoomName: string;
+  listenerToken: string;
+  guideToken: string;
 };
 ```
 

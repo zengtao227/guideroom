@@ -4,6 +4,9 @@
   "workspaces": [
     "apps/*"
   ],
+  "overrides": {
+    "postcss": "8.5.15"
+  },
   "scripts": {
     "dev": "npm --workspace apps/web run dev",
     "build": "npm --workspace apps/web run build",

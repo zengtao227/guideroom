@@ -1,4 +1,5 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import http from 'http';
 import QRCode from 'qrcode';
 import { WebSocketServer, WebSocket, RawData } from 'ws';
@@ -18,6 +19,22 @@ const ROOM_SWEEP_MS = 60 * 1000;
 
 const app = express();
 app.use(express.json({ limit: '16kb' }));
+
+type JsonBodyError = Error & {
+  status?: number;
+  type?: string;
+};
+
+function handleJsonBodyError(error: JsonBodyError, _req: Request, res: Response, next: NextFunction): void {
+  if (error.status === 413 || error.type === 'entity.too.large') {
+    res.status(413).json({ error: 'request body too large' });
+    return;
+  }
+
+  next(error);
+}
+
+app.use(handleJsonBodyError);
 
 app.post('/relay-api/rooms', (req: Request, res: Response) => {
   const { title, guideName, durationHours } = req.body as {
@@ -70,6 +87,10 @@ type RoomSockets = {
   listeners: Set<WebSocket>;
 };
 
+type WebSocketError = Error & {
+  code?: string;
+};
+
 const roomSockets = new Map<string, RoomSockets>();
 const guideGraceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const GUIDE_GRACE_MS = 10 * 60 * 1000; // 10-minute grace period on guide disconnect
@@ -94,6 +115,14 @@ function rawDataToBuffer(data: RawData): Buffer {
   if (data instanceof ArrayBuffer) return Buffer.from(data);
   if (Array.isArray(data)) return Buffer.concat(data);
   return Buffer.from(data as unknown as Uint8Array);
+}
+
+function handleWebSocketError(error: WebSocketError): void {
+  if (error.code === 'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH') {
+    return;
+  }
+
+  console.warn(`Relay WebSocket error: ${error.message}`);
 }
 
 function closeRoomSockets(roomId: string, code = 4004, reason = 'room not active'): void {
@@ -140,6 +169,8 @@ setInterval(() => {
 }, ROOM_SWEEP_MS);
 
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
+  ws.on('error', handleWebSocketError);
+
   const url = new URL(req.url ?? '', 'http://localhost');
   const role = url.searchParams.get('role');
   const relayRoom = role === 'guide'

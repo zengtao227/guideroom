@@ -32,9 +32,9 @@ Browser (listener) ←──audio──────┘
 |------|------|
 | `/` | 首页（英文默认，右上角切换语言） |
 | `/guide/create` | 导游创建房间表单 |
-| `/guide/room/[roomId]` | 导游控制台（麦克风开关、QR 码、结束房间） |
-| `/listen/[roomId]` | 访客收听页（扫码后跳转） |
-| `/api/livekit-token` | 生成 LiveKit JWT token |
+| `/guide/room/[roomId]?guideToken=...` | 导游控制台（麦克风开关、QR 码、结束房间），需要私有导游 capability |
+| `/listen/[listenerToken]` | 访客收听页（扫码后跳转），只暴露听众 capability |
+| `/api/livekit-token` | 生成 LiveKit JWT token；guide 需 `roomId + guideToken`，listener 只接受 `listenerToken` |
 
 ## 环境变量
 
@@ -113,9 +113,10 @@ sudo docker compose logs -f  # 查看日志
 
 | 端点 | 说明 |
 |------|------|
-| `POST /relay-api/rooms` | 创建房间，返回 `{ roomId, expiresAt, title }` |
-| `GET /relay-api/rooms/:roomId` | 查询房间信息 |
-| `wss://guideroom.zengsg.dpdns.org/relay-ws?roomId=X&role=guide\|listener` | WebSocket 音频中继 |
+| `POST /relay-api/rooms` | 创建房间，返回 `{ roomId, listenerToken, guideToken, expiresAt, title }` |
+| `GET /relay-api/rooms/:listenerToken` | 用听众 capability 查询公开房间信息 |
+| `wss://guideroom.zengsg.dpdns.org/relay-ws?roomId=X&guideToken=Y&role=guide` | 导游 WebSocket 音频发布，需要私有导游 capability |
+| `wss://guideroom.zengsg.dpdns.org/relay-ws?listenerToken=Y&role=listener` | 听众 WebSocket 音频收听，只使用听众 capability |
 
 ### 中继服务器管理（Frankfurt VPS）
 
@@ -171,7 +172,7 @@ guideroom.zengsg.dpdns.org {
 - [x] relay server：30s server-side ping（防 Cloudflare 100s 超时）
 - [x] relay server：导游断线 10 分钟宽限期，断线时通知听众倒计时，重连时自动恢复
 - [x] relay server：文字/二进制消息分离转发（支持 mimeType 协商）
-- [x] 浏览器端到端测试页 `/relay-test.html`：导游录音广播 + 听众 MSE 播放 + 重连按钮
+- [x] 删除公开浏览器中继测试页 `/relay-test.html`，避免公开页面绕过正式 capability 流程
 - [x] pm2 开机自启（pm2-opc.service systemd）
 
 ### 待完成（技术）

@@ -55,6 +55,8 @@ Action:
 
 ### Guide room page `/guide/room/[roomId]`
 
+The page requires the private `guideToken` capability.
+
 Content:
 
 - QR code
@@ -66,7 +68,7 @@ Content:
 - stop speaking button
 - end room button
 
-### Listener page `/listen/[roomId]`
+### Listener page `/listen/[listenerToken]`
 
 Content:
 
@@ -79,6 +81,8 @@ Content:
 ## Room rules
 
 - Each room has a unique `roomId`.
+- Each room has a private `guideToken` for guide actions.
+- Each room has a public `listenerToken` for QR codes and listener links.
 - Each room has a creation time.
 - Each room has an expiry time.
 - A room can be active or ended.

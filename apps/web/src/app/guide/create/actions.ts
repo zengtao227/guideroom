@@ -16,7 +16,13 @@ export type CreateRoomState = {
 };
 
 function readBoundedFormString(formData: FormData, key: string, maxLength: number): string | undefined {
-  const value = (formData.get(key) as string | null)?.trim().slice(0, maxLength);
+  const rawValue = formData.get(key);
+
+  if (typeof rawValue !== 'string') {
+    return undefined;
+  }
+
+  const value = rawValue.trim().slice(0, maxLength);
   return value || undefined;
 }
 
@@ -25,7 +31,8 @@ export async function createRoomAction(
   formData: FormData,
 ): Promise<CreateRoomState> {
   const title = readBoundedFormString(formData, 'title', MAX_TITLE_LENGTH) || 'GuideRoom session';
-  const duration = (formData.get('duration') as string | null) ?? '';
+  const rawDuration = formData.get('duration');
+  const duration = typeof rawDuration === 'string' ? rawDuration : '';
   const guideName = readBoundedFormString(formData, 'guideName', MAX_GUIDE_NAME_LENGTH);
 
   const durationHours = DURATION_MAP[duration];
