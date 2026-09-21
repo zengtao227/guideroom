@@ -17,7 +17,7 @@
 | Web app (existing) | Europe / global | LiveKit WebRTC | VPS port 3001 |
 | WeChat Mini Program (new) | China | WebSocket relay | VPS port 3002 (test) → Chinese ECS (production) |
 
-Frankfurt is used for testing only. When Chinese operations are ready (company registered, ICP filed), the relay server migrates to a Chinese ECS instance.
+The current VPS is used for testing only. When Chinese operations are ready (company registered, ICP filed), the relay server migrates to a Chinese ECS instance.
 
 ---
 

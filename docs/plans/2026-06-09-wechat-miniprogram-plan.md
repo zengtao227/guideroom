@@ -1096,7 +1096,7 @@ ssh frank "pm2 restart guideroom-relay"
 - 正式对中国用户上线时，将中继服务器迁移至国内 ECS
 ```
 
-**Step 2: Add relay entry to Frankfurt registry**
+**Step 2: Add relay entry to the server registry**
 
 Add to `registry_frankfurt.yaml` under services:
 
