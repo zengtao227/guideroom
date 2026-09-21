@@ -4,7 +4,7 @@
 
 **Goal:** Build a WeChat Mini Program version of GuideRoom for the Chinese market, using a WebSocket audio relay instead of LiveKit/WebRTC.
 
-**Architecture:** Guide captures audio via `RecorderManager`, sends AAC chunks over WSS to a relay server on Frankfurt VPS. Relay broadcasts chunks to all listeners in the same room. Listeners play audio via `InnerAudioContext`.
+**Architecture:** Guide captures audio via `RecorderManager`, sends AAC chunks over WSS to a relay server on VPS. Relay broadcasts chunks to all listeners in the same room. Listeners play audio via `InnerAudioContext`.
 
 **Tech Stack:** WeChat Mini Program (WXML/WXSS/TypeScript) + Node.js WebSocket relay server (`ws` library)
 
@@ -14,8 +14,8 @@
 
 | Product | Target | Audio backend | Server |
 |---------|--------|--------------|--------|
-| Web app (existing) | Europe / global | LiveKit WebRTC | Frankfurt VPS port 3001 |
-| WeChat Mini Program (new) | China | WebSocket relay | Frankfurt VPS port 3002 (test) → Chinese ECS (production) |
+| Web app (existing) | Europe / global | LiveKit WebRTC | VPS port 3001 |
+| WeChat Mini Program (new) | China | WebSocket relay | VPS port 3002 (test) → Chinese ECS (production) |
 
 Frankfurt is used for testing only. When Chinese operations are ready (company registered, ICP filed), the relay server migrates to a Chinese ECS instance.
 
@@ -29,7 +29,7 @@ Frankfurt is used for testing only. When Chinese operations are ready (company r
 
 **Room state:** In-memory `Map<roomId, RelayRoom>` (same pattern as web app).
 
-**Ports on Frankfurt VPS:**
+**Ports on VPS:**
 - HTTP API: `127.0.0.1:3002` → Caddy proxies `guideroom.zengsg.dpdns.org/relay-api/*`
 - WebSocket: `127.0.0.1:3003` → Caddy proxies `wss://guideroom.zengsg.dpdns.org/relay-ws`
 
@@ -95,7 +95,7 @@ Expected latency: 1–2 seconds (acceptable for one-way guide commentary).
 
 ---
 
-## Caddy Configuration (Frankfurt VPS)
+## Caddy Configuration (VPS)
 
 Add to `/etc/caddy/Caddyfile`:
 ```
@@ -108,7 +108,7 @@ guideroom.zengsg.dpdns.org {
 
 ---
 
-## Deployment (Frankfurt VPS)
+## Deployment (VPS)
 
 Relay server runs as a systemd service or PM2 process alongside the Docker Next.js container.
 

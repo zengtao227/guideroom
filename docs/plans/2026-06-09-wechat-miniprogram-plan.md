@@ -4,7 +4,7 @@
 
 **Goal:** Build a WeChat Mini Program (3 pages: index, guide, listener) backed by a new Node.js WebSocket relay server, so Chinese users can use GuideRoom without LiveKit/WebRTC.
 
-**Architecture:** Relay server (`server/`) runs on Frankfurt VPS port 3002 (HTTP) and 3003 (WebSocket), proxied by Caddy under `guideroom.zengsg.dpdns.org`. Mini program (`miniprogram/`) connects to this relay. Guide sends AAC audio chunks via WebSocket; relay broadcasts to all listeners; listeners write chunks to temp files and play them sequentially with `InnerAudioContext`.
+**Architecture:** Relay server (`server/`) runs on VPS port 3002 (HTTP) and 3003 (WebSocket), proxied by Caddy under `guideroom.zengsg.dpdns.org`. Mini program (`miniprogram/`) connects to this relay. Guide sends AAC audio chunks via WebSocket; relay broadcasts to all listeners; listeners write chunks to temp files and play them sequentially with `InnerAudioContext`.
 
 **Tech Stack:** Node.js 20 + TypeScript + `ws` + `express` (relay); WeChat Mini Program WXML/WXSS/TypeScript (client); PM2 for process management on VPS.
 
@@ -266,7 +266,7 @@ git commit -m "feat: relay server HTTP API and WebSocket audio relay"
 
 ---
 
-## Task 3: Deploy relay server to Frankfurt VPS
+## Task 3: Deploy relay server to VPS
 
 **Files (on VPS):**
 - Modify: `/etc/caddy/Caddyfile`
@@ -1070,7 +1070,7 @@ Append after the existing content:
 |------|------|
 | 小程序源码 | `miniprogram/` |
 | 中继服务器源码 | `server/` |
-| 中继服务器部署 | Frankfurt VPS，PM2 进程名 `guideroom-relay` |
+| 中继服务器部署 | VPS，PM2 进程名 `guideroom-relay` |
 
 ### 中继服务器端点
 
@@ -1113,7 +1113,7 @@ Add to `registry_frankfurt.yaml` under services:
     log_path: "pm2 logs guideroom-relay"
     restart_policy: "pm2 save + pm2 startup"
     notes:
-      - "Test only on Frankfurt VPS; migrate to Chinese ECS when company is registered"
+      - "Test only on VPS; migrate to Chinese ECS when company is registered"
       - "Mini Program AppID: update miniprogram/project.config.json before publishing"
 ```
 
