@@ -106,8 +106,8 @@ sudo docker compose logs -f  # 查看日志
 
 | 产品 | 目标市场 | 音频后端 | 服务器 |
 |------|---------|---------|--------|
-| Web app（现有） | 欧洲/全球 | LiveKit WebRTC | Frankfurt VPS :3001 |
-| 微信小程序（新） | 中国 | WebSocket 音频中继 | Frankfurt VPS :3002/:3003（测试） → 国内 ECS（正式） |
+| Web app（现有） | 欧洲/全球 | LiveKit WebRTC | VPS :3001 |
+| 微信小程序（新） | 中国 | WebSocket 音频中继 | VPS :3002/:3003（测试） → 国内 ECS（正式） |
 
 ### 中继服务器（`server/`）
 
@@ -118,7 +118,7 @@ sudo docker compose logs -f  # 查看日志
 | `wss://guideroom.zengsg.dpdns.org/relay-ws?roomId=X&guideToken=Y&role=guide` | 导游 WebSocket 音频发布，需要私有导游 capability |
 | `wss://guideroom.zengsg.dpdns.org/relay-ws?listenerToken=Y&role=listener` | 听众 WebSocket 音频收听，只使用听众 capability |
 
-### 中继服务器管理（Frankfurt VPS）
+### 中继服务器管理（VPS）
 
 ```bash
 ssh frank "pm2 status guideroom-relay"
@@ -165,9 +165,9 @@ guideroom.zengsg.dpdns.org {
 ### 已完成
 
 - [x] Web 版：首页、创建房间、导游控制台、听众收听（EN/ZH/DE/FR）
-- [x] LiveKit 自建于 Frankfurt VPS，WebRTC 音频正常
+- [x] LiveKit 自建于 VPS，WebRTC 音频正常
 - [x] 微信小程序：三页骨架（index/guide/listener）
-- [x] 中继服务器：HTTP API + WebSocket 音频广播，部署于 Frankfurt VPS (PM2, port 4002/4003)
+- [x] 中继服务器：HTTP API + WebSocket 音频广播，部署于 VPS (PM2, port 4002/4003)
 - [x] Caddy 路由更新，公网 HTTPS 接口验证通过
 - [x] relay server：30s server-side ping（防 Cloudflare 100s 超时）
 - [x] relay server：导游断线 10 分钟宽限期，断线时通知听众倒计时，重连时自动恢复
