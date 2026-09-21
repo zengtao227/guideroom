@@ -81,8 +81,8 @@ sudo docker compose logs -f  # 查看日志
 
 | 子域名 | 类型 | IP | 代理 |
 |--------|------|-----|------|
-| `guideroom.zengsg.dpdns.org` | A | 89.168.80.38 | 橙色（proxied） |
-| `livekit.zengsg.dpdns.org` | A | 89.168.80.38 | 灰色（DNS-only）推荐 |
+| `guideroom.zengsg.dpdns.org` | A | `<服务器 IP>` | 橙色（proxied） |
+| `livekit.zengsg.dpdns.org` | A | `<服务器 IP>` | 灰色（DNS-only）推荐 |
 
 ## Oracle Cloud Security List（需手动配置）
 
