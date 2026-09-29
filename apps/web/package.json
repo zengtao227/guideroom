@@ -8,28 +8,28 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@livekit/components-react": "latest",
-    "@livekit/components-styles": "latest",
-    "livekit-client": "latest",
+    "@livekit/components-react": "*",
+    "@livekit/components-styles": "*",
+    "livekit-client": "*",
     "livekit-server-sdk": "^2.15.4",
-    "next": "latest",
-    "qrcode": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "uuid": "latest"
+    "next": "^16.3.4",
+    "qrcode": "*",
+    "react": "*",
+    "react-dom": "*",
+    "uuid": "*"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
-    "@types/node": "latest",
-    "@types/qrcode": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "@types/uuid": "latest",
-    "autoprefixer": "latest",
-    "eslint": "latest",
-    "eslint-config-next": "latest",
-    "postcss": "latest",
-    "tailwindcss": "latest",
-    "typescript": "latest"
+    "@types/node": "*",
+    "@types/qrcode": "*",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "@types/uuid": "*",
+    "autoprefixer": "*",
+    "eslint": "*",
+    "eslint-config-next": "*",
+    "postcss": "*",
+    "tailwindcss": "*",
+    "typescript": "*"
   }
 }
