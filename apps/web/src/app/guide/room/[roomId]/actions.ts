@@ -1,7 +1,7 @@
 'use server';
 
 import { endRoom, getRoomForGuide } from '@/lib/room-store';
-import { RoomServiceClient } from 'livekit-server-sdk';
+import { RoomServiceClient, TwirpError } from 'livekit-server-sdk';
 
 export async function endRoomAction(roomId: string, guideToken: string): Promise<void> {
   const room = getRoomForGuide(roomId, guideToken);
@@ -9,8 +9,6 @@ export async function endRoomAction(roomId: string, guideToken: string): Promise
   if (!room) {
     throw new Error('Access denied');
   }
-
-  endRoom(room.id);
 
   const wsUrl = process.env.LIVEKIT_URL ?? '';
   const httpUrl = wsUrl.replace(/^ws/, 'http');
@@ -23,7 +21,10 @@ export async function endRoomAction(roomId: string, guideToken: string): Promise
 
   try {
     await svc.deleteRoom(room.livekitRoomName);
-  } catch {
-    // Room may not exist on LiveKit if no participant ever connected
+  } catch (error) {
+    // A room that never had a participant is already closed in LiveKit.
+    if (!(error instanceof TwirpError && error.code === 'not_found')) throw error;
   }
+
+  endRoom(room.id);
 }

@@ -1,6 +1,7 @@
 const fs = wx.getFileSystemManager();
 const MAX_AUDIO_QUEUE_LENGTH = 30;
 const MAX_AUDIO_CHUNK_BYTES = 256 * 1024;
+let chunkIndex = 0;
 
 Page({
   data: {
@@ -14,8 +15,7 @@ Page({
   ws: null,
   audioCtx: null,
   audioQueue: [],
-  isPlaying: false,
-  chunkIndex: 0,
+  playingPath: null,
   graceTimer: null,
 
   onLoad(options) {
@@ -36,23 +36,40 @@ Page({
   },
 
   startListening() {
+    if (this.data.status !== 'idle') return;
     this.setData({ status: 'connecting' });
+    this.audioQueue = [];
 
-    this.audioCtx = wx.createInnerAudioContext();
-    this.audioCtx.obeyMuteSwitch = false;
-    this.audioCtx.onEnded(() => this._playNext());
-    this.audioCtx.onError(() => this._playNext());
+    const audioCtx = wx.createInnerAudioContext();
+    this.audioCtx = audioCtx;
+    audioCtx.obeyMuteSwitch = false;
+    const playNext = () => {
+      if (this.audioCtx === audioCtx) this._playNext();
+    };
+    audioCtx.onEnded(playNext);
+    audioCtx.onError(playNext);
+
+    const finish = (socketClosed = false) => {
+      if (this.audioCtx !== audioCtx) return;
+      if (socketClosed) this.ws = null;
+      this._cleanup();
+      this.setData({ status: 'ended' });
+    };
 
     const app = getApp();
     const base = app.globalData.relayBase.replace('https://', 'wss://').replace('http://', 'ws://');
-    this.ws = wx.connectSocket({
+    const ws = wx.connectSocket({
       url: base + '/relay-ws?listenerToken=' + encodeURIComponent(this.data.listenerToken) + '&role=listener',
-      fail: () => this.setData({ status: 'ended' }),
+      fail: () => finish(true),
+    });
+    this.ws = ws;
+
+    ws.onOpen(() => {
+      if (this.ws === ws) this.setData({ status: 'connected' });
     });
 
-    this.ws.onOpen(() => this.setData({ status: 'connected' }));
-
-    this.ws.onMessage((res) => {
+    ws.onMessage((res) => {
+      if (this.ws !== ws) return;
       if (typeof res.data === 'string') {
         try {
           const msg = JSON.parse(res.data);
@@ -62,9 +79,7 @@ Page({
             this._stopGraceCountdown();
             this.setData({ status: 'connected' });
           } else if (msg.type === 'room_ended') {
-            this._stopGraceCountdown();
-            this._cleanup();
-            this.setData({ status: 'ended' });
+            finish();
           }
         } catch (_) {}
         return;
@@ -74,28 +89,28 @@ Page({
         return;
       }
 
-      while (this.audioQueue.length >= MAX_AUDIO_QUEUE_LENGTH) {
-        const droppedPath = this.audioQueue.shift();
-        this._deleteFile(droppedPath);
-      }
-
       // Binary: AAC audio chunk — write to temp file and queue for playback
-      this.chunkIndex += 1;
-      const path = wx.env.USER_DATA_PATH + '/gr_' + this.chunkIndex + '.aac';
+      const path = wx.env.USER_DATA_PATH + '/gr_' + Date.now() + '_' + ++chunkIndex + '.aac';
       fs.writeFile({
         filePath: path,
         data: res.data,
         encoding: 'binary',
         success: () => {
+          if (this.ws !== ws) {
+            this._deleteFile(path);
+            return;
+          }
+          if (this.audioQueue.length >= MAX_AUDIO_QUEUE_LENGTH) {
+            this._deleteFile(this.audioQueue.shift());
+          }
           this.audioQueue.push(path);
-          if (!this.isPlaying) this._playNext();
+          if (!this.playingPath) this._playNext();
         },
       });
     });
 
-    this.ws.onClose(() => {
-      if (this.data.status !== 'ended') this.setData({ status: 'ended' });
-    });
+    ws.onError(() => finish());
+    ws.onClose(() => finish(true));
   },
 
   _deleteFile(path) {
@@ -103,16 +118,11 @@ Page({
   },
 
   _playNext() {
-    if (this.audioQueue.length === 0) {
-      this.isPlaying = false;
-      return;
-    }
-    this.isPlaying = true;
-    const path = this.audioQueue.shift();
-    this.audioCtx.src = path;
+    this._deleteFile(this.playingPath);
+    this.playingPath = this.audioQueue.shift() || null;
+    if (!this.playingPath) return;
+    this.audioCtx.src = this.playingPath;
     this.audioCtx.play();
-    // Delete the file after a delay to avoid filling storage
-    setTimeout(() => this._deleteFile(path), 8000);
   },
 
   _startGraceCountdown(expiresAt) {
@@ -126,8 +136,8 @@ Page({
       this.setData({ status: 'guide_away', graceCountdown: t });
       if (remaining <= 0) this._stopGraceCountdown();
     };
-    tick();
     this.graceTimer = setInterval(tick, 1000);
+    tick();
   },
 
   _stopGraceCountdown() {
@@ -136,11 +146,16 @@ Page({
 
   _cleanup() {
     this._stopGraceCountdown();
-    if (this.ws) { this.ws.close({}); this.ws = null; }
-    if (this.audioCtx) { this.audioCtx.stop(); this.audioCtx.destroy(); this.audioCtx = null; }
+    const ws = this.ws;
+    this.ws = null;
+    ws?.close({});
+    const audioCtx = this.audioCtx;
+    this.audioCtx = null;
+    audioCtx?.destroy();
+    this._deleteFile(this.playingPath);
+    this.playingPath = null;
     this.audioQueue.forEach((path) => this._deleteFile(path));
     this.audioQueue = [];
-    this.isPlaying = false;
   },
 
   goHome() {

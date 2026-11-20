@@ -3,45 +3,26 @@
 import { redirect } from 'next/navigation';
 import { createRoom } from '@/lib/room-store';
 
-const DURATION_MAP: Record<string, number> = {
-  '1h': 1,
-  '4h': 4,
-};
-
-const MAX_TITLE_LENGTH = 120;
-const MAX_GUIDE_NAME_LENGTH = 80;
-
 export type CreateRoomState = {
   error?: string;
 };
-
-function readBoundedFormString(formData: FormData, key: string, maxLength: number): string | undefined {
-  const rawValue = formData.get(key);
-
-  if (typeof rawValue !== 'string') {
-    return undefined;
-  }
-
-  const value = rawValue.trim().slice(0, maxLength);
-  return value || undefined;
-}
 
 export async function createRoomAction(
   _prev: CreateRoomState,
   formData: FormData,
 ): Promise<CreateRoomState> {
-  const title = readBoundedFormString(formData, 'title', MAX_TITLE_LENGTH) || 'GuideRoom session';
-  const rawDuration = formData.get('duration');
-  const duration = typeof rawDuration === 'string' ? rawDuration : '';
-  const guideName = readBoundedFormString(formData, 'guideName', MAX_GUIDE_NAME_LENGTH);
-
-  const durationHours = DURATION_MAP[duration];
-
-  if (!durationHours) {
+  const duration = formData.get('duration');
+  if (duration !== '1h' && duration !== '4h') {
     return { error: 'Please choose a session duration.' };
   }
 
-  const room = createRoom({ title, guideName, durationHours });
+  const title = formData.get('title');
+  const guideName = formData.get('guideName');
+  const room = createRoom({
+    title: typeof title === 'string' ? title : '',
+    guideName: typeof guideName === 'string' ? guideName : undefined,
+    durationHours: duration === '4h' ? 4 : 1,
+  });
 
   redirect(`/guide/room/${room.id}?guideToken=${encodeURIComponent(room.guideToken)}`);
 }

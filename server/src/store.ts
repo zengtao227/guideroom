@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 export type RelayRoomStatus = 'active' | 'ended' | 'expired';
 
@@ -8,7 +8,6 @@ export type RelayRoom = {
   guideToken: string;
   title: string;
   guideName?: string;
-  createdAt: string;
   expiresAt: string;
   status: RelayRoomStatus;
 };
@@ -16,25 +15,15 @@ export type RelayRoom = {
 const rooms = new Map<string, RelayRoom>();
 const MAX_TITLE_LENGTH = 120;
 const MAX_GUIDE_NAME_LENGTH = 80;
-const VALID_DURATIONS = new Set([1, 4]);
 const MIN_TOKEN_LENGTH = 16;
 const MAX_TOKEN_LENGTH = 128;
-
-function createCapabilityToken(): string {
-  return uuidv4();
-}
 
 function isCapabilityToken(value: unknown): value is string {
   return typeof value === 'string' && value.length >= MIN_TOKEN_LENGTH && value.length <= MAX_TOKEN_LENGTH;
 }
 
-function boundedString(value: string | undefined, maxLength: number, fallback?: string): string | undefined {
-  const trimmed = value?.trim().slice(0, maxLength);
-  return trimmed || fallback;
-}
-
-function normalizeDurationHours(value: number): number {
-  return VALID_DURATIONS.has(value) ? value : 1;
+function boundedString(value: unknown, maxLength: number): string | undefined {
+  return typeof value === 'string' ? value.trim().slice(0, maxLength) || undefined : undefined;
 }
 
 function getCurrentStatus(room: RelayRoom): RelayRoomStatus {
@@ -55,18 +44,16 @@ function refreshRelayRoomStatus(room: RelayRoom): RelayRoom {
   return updatedRoom;
 }
 
-export function createRelayRoom(title: string, guideName: string | undefined, durationHours: number): RelayRoom {
-  const id = uuidv4();
-  const normalizedDurationHours = normalizeDurationHours(durationHours);
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + normalizedDurationHours * 60 * 60 * 1000);
+export function createRelayRoom(title: unknown, guideName: unknown, durationHours: unknown): RelayRoom {
+  const id = randomUUID();
+  const hours = durationHours === 4 ? 4 : 1;
+  const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000);
   const relayRoom: RelayRoom = {
     id,
-    listenerToken: createCapabilityToken(),
-    guideToken: createCapabilityToken(),
-    title: boundedString(title, MAX_TITLE_LENGTH, 'GuideRoom session') ?? 'GuideRoom session',
+    listenerToken: randomUUID(),
+    guideToken: randomUUID(),
+    title: boundedString(title, MAX_TITLE_LENGTH) ?? 'GuideRoom session',
     guideName: boundedString(guideName, MAX_GUIDE_NAME_LENGTH),
-    createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     status: 'active',
   };

@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   LiveKitRoom,
   RoomAudioRenderer,
+  StartAudio,
   useConnectionState,
   useRemoteParticipants,
 } from '@livekit/components-react';
@@ -31,31 +32,18 @@ function ActiveListener() {
   const { t } = useTranslation();
   const { listenerRoom: l } = t;
   const [guideGone, setGuideGone] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isConnected = connectionState === ConnectionState.Connected;
+  const hasGuide = remoteParticipants.some((participant) => participant.identity.startsWith('guide-'));
 
   useEffect(() => {
-    const isConnected = connectionState === ConnectionState.Connected;
-    const noGuide = remoteParticipants.length === 0;
+    if (!isConnected || hasGuide) return;
 
-    if (isConnected && noGuide) {
-      if (!timerRef.current) {
-        timerRef.current = setTimeout(() => setGuideGone(true), GUIDE_GONE_DELAY_MS);
-      }
-    } else {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-      }
-      setGuideGone(false);
-    }
-
+    const timer = setTimeout(() => setGuideGone(true), GUIDE_GONE_DELAY_MS);
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-      }
+      clearTimeout(timer);
+      setGuideGone(false);
     };
-  }, [connectionState, remoteParticipants.length]);
+  }, [isConnected, hasGuide]);
 
   if (connectionState === ConnectionState.Disconnected) {
     return (
@@ -75,8 +63,6 @@ function ActiveListener() {
     );
   }
 
-  const isConnected = connectionState === ConnectionState.Connected;
-
   return (
     <>
       <RoomAudioRenderer />
@@ -92,6 +78,10 @@ function ActiveListener() {
           </p>
         </div>
         <p className="mt-2 text-sm leading-6 text-slate-300">{l.audioPlaying}</p>
+        <StartAudio
+          label={l.startListening}
+          className="mt-4 w-full rounded-full bg-white px-5 py-4 text-sm font-semibold text-slate-950"
+        />
       </div>
     </>
   );
@@ -183,6 +173,10 @@ export function ListenerRoom({ listenerToken, wsUrl, roomTitle, guideName, statu
             connect
             audio={false}
             video={false}
+            onError={(roomError) => {
+              setToken(null);
+              setError(roomError.message);
+            }}
           >
             <ActiveListener />
           </LiveKitRoom>

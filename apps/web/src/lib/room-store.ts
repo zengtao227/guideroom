@@ -1,7 +1,7 @@
+import { randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { v4 as uuidv4 } from 'uuid';
 
 export type RoomStatus = 'active' | 'ended' | 'expired';
 
@@ -45,13 +45,8 @@ function getRoomStorePath(): string {
   return configuredPath || DEFAULT_ROOM_STORE_PATH;
 }
 
-function boundedString(value: string | undefined, maxLength: number, fallback?: string): string | undefined {
-  const trimmed = value?.trim().slice(0, maxLength);
-  return trimmed || fallback;
-}
-
-function createCapabilityToken(): string {
-  return uuidv4();
+function boundedString(value: string | undefined, maxLength: number): string | undefined {
+  return value?.trim().slice(0, maxLength).trimEnd() || undefined;
 }
 
 function isCapabilityToken(value: unknown): value is string {
@@ -91,8 +86,8 @@ function coerceRoom(value: unknown): Room | undefined {
     expiresAt: candidate.expiresAt,
     status: candidate.status,
     livekitRoomName: candidate.livekitRoomName,
-    listenerToken: isCapabilityToken(candidate.listenerToken) ? candidate.listenerToken : createCapabilityToken(),
-    guideToken: isCapabilityToken(candidate.guideToken) ? candidate.guideToken : createCapabilityToken(),
+    listenerToken: isCapabilityToken(candidate.listenerToken) ? candidate.listenerToken : randomUUID(),
+    guideToken: isCapabilityToken(candidate.guideToken) ? candidate.guideToken : randomUUID(),
   };
 }
 
@@ -169,22 +164,22 @@ function getCurrentStatus(room: Room): RoomStatus {
 }
 
 export function createRoom(input: CreateRoomInput): Room {
-  const id = uuidv4();
+  const id = randomUUID();
   const now = new Date();
   const durationHours = VALID_DURATIONS.has(input.durationHours) ? input.durationHours : 1;
   const expiresAt = new Date(now.getTime() + durationHours * 60 * 60 * 1000);
 
   const room: Room = {
     id,
-    title: boundedString(input.title, MAX_TITLE_LENGTH, 'GuideRoom session') ?? 'GuideRoom session',
+    title: boundedString(input.title, MAX_TITLE_LENGTH) ?? 'GuideRoom session',
     guideName: boundedString(input.guideName, MAX_GUIDE_NAME_LENGTH),
     durationHours,
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     status: 'active',
     livekitRoomName: id,
-    listenerToken: createCapabilityToken(),
-    guideToken: createCapabilityToken(),
+    listenerToken: randomUUID(),
+    guideToken: randomUUID(),
   };
 
   const rooms: Map<string, Room> = getRooms();
@@ -194,7 +189,7 @@ export function createRoom(input: CreateRoomInput): Room {
   return room;
 }
 
-export function getRoom(id: string): Room | undefined {
+function getRoom(id: string): Room | undefined {
   const rooms = getRooms();
   const room = rooms.get(id);
 

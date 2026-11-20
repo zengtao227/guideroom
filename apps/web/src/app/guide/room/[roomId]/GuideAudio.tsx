@@ -60,6 +60,7 @@ function GuideControls({
   const connectionState = useConnectionState();
   const router = useRouter();
   const [isEnding, setIsEnding] = useState(false);
+  const [endError, setEndError] = useState(false);
   const [isRequestingMic, setIsRequestingMic] = useState(false);
   const [micError, setMicError] = useState<string | null>(startupMicError);
   const [micPermissionState, setMicPermissionState] = useState<MicPermissionState>('unknown');
@@ -68,7 +69,7 @@ function GuideControls({
   const { guideRoom: g } = t;
 
   const isConnected = connectionState === ConnectionState.Connected;
-  const listenerCount = participants.filter((p) => !p.isLocal).length;
+  const listenerCount = participants.filter((p) => p.identity.startsWith('listener-')).length;
 
   useEffect(() => {
     setMicError(startupMicError);
@@ -129,10 +130,6 @@ function GuideControls({
       return g.micNotReadable;
     }
 
-    if (name === 'OverconstrainedError' || name === 'ConstraintNotSatisfiedError') {
-      return g.micAccessFailed;
-    }
-
     return g.micAccessFailed;
   }
 
@@ -169,8 +166,14 @@ function GuideControls({
 
   async function handleEndRoom() {
     setIsEnding(true);
-    await endRoomAction(roomId, guideToken);
-    router.push('/guide/create');
+    setEndError(false);
+    try {
+      await endRoomAction(roomId, guideToken);
+      router.push('/guide/create');
+    } catch {
+      setEndError(true);
+      setIsEnding(false);
+    }
   }
 
   return (
@@ -225,6 +228,7 @@ function GuideControls({
         >
           {isEnding ? g.ending : g.endRoom}
         </button>
+        {endError && <p role="alert" className="text-sm text-red-700">{g.endRoomFailed}</p>}
       </div>
     </>
   );

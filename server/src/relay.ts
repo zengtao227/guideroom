@@ -37,12 +37,12 @@ function handleJsonBodyError(error: JsonBodyError, _req: Request, res: Response,
 app.use(handleJsonBodyError);
 
 app.post('/relay-api/rooms', (req: Request, res: Response) => {
-  const { title, guideName, durationHours } = req.body as {
-    title?: string;
-    guideName?: string;
-    durationHours?: number;
+  const { title, guideName, durationHours } = (req.body ?? {}) as {
+    title?: unknown;
+    guideName?: unknown;
+    durationHours?: unknown;
   };
-  const room = createRelayRoom(title ?? '', guideName, durationHours ?? 1);
+  const room = createRelayRoom(title, guideName, durationHours);
   res.json({
     roomId: room.id,
     listenerToken: room.listenerToken,
@@ -94,6 +94,7 @@ type WebSocketError = Error & {
 const roomSockets = new Map<string, RoomSockets>();
 const guideGraceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const GUIDE_GRACE_MS = 10 * 60 * 1000; // 10-minute grace period on guide disconnect
+const GUIDE_ENDED_CLOSE_CODE = 4000;
 
 function getRoomSockets(roomId: string): RoomSockets {
   let room = roomSockets.get(roomId);
@@ -113,8 +114,7 @@ function broadcastListenerCount(roomId: string): void {
 function rawDataToBuffer(data: RawData): Buffer {
   if (Buffer.isBuffer(data)) return data;
   if (data instanceof ArrayBuffer) return Buffer.from(data);
-  if (Array.isArray(data)) return Buffer.concat(data);
-  return Buffer.from(data as unknown as Uint8Array);
+  return Buffer.concat(data);
 }
 
 function handleWebSocketError(error: WebSocketError): void {
@@ -134,6 +134,7 @@ function closeRoomSockets(roomId: string, code = 4004, reason = 'room not active
 
   const sockets = roomSockets.get(roomId);
   if (!sockets) return;
+  roomSockets.delete(roomId);
 
   if (sockets.guide?.readyState === WebSocket.OPEN) {
     sockets.guide.close(code, reason);
@@ -145,8 +146,6 @@ function closeRoomSockets(roomId: string, code = 4004, reason = 'room not active
       listener.close(code, reason);
     }
   });
-
-  roomSockets.delete(roomId);
 }
 
 const wss = new WebSocketServer({ port: WS_PORT, host: '127.0.0.1', maxPayload: MAX_AUDIO_CHUNK_BYTES });
@@ -205,31 +204,27 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     broadcastListenerCount(roomId);
 
     ws.on('message', (data: RawData, isBinary: boolean) => {
+      if (roomSockets.get(roomId)?.guide !== ws) return;
       const currentRoom = getRelayRoom(roomId);
       if (!currentRoom || currentRoom.status !== 'active') {
         closeRoomSockets(roomId);
         return;
       }
 
-      if (isBinary) {
-        const audioBuffer = rawDataToBuffer(data);
-        if (audioBuffer.byteLength > MAX_AUDIO_CHUNK_BYTES) {
-          ws.close(4009, 'audio chunk too large');
-          return;
-        }
-        sockets.listeners.forEach((listener) => {
-          if (listener.readyState === WebSocket.OPEN) listener.send(audioBuffer);
-        });
-      } else {
-        const text = data.toString();
-        sockets.listeners.forEach((listener) => {
-          if (listener.readyState === WebSocket.OPEN) listener.send(text);
-        });
-      }
+      const payload = rawDataToBuffer(data);
+      sockets.listeners.forEach((listener) => {
+        if (listener.readyState === WebSocket.OPEN) listener.send(payload, { binary: isBinary });
+      });
     });
 
-    ws.on('close', () => {
-      if (sockets.guide !== ws) return;
+    ws.on('close', (code) => {
+      if (roomSockets.get(roomId)?.guide !== ws) return;
+      if (code === GUIDE_ENDED_CLOSE_CODE) {
+        markRelayRoomEnded(roomId);
+        closeRoomSockets(roomId);
+        return;
+      }
+
       sockets.guide = null;
 
       // Notify listeners of temporary disconnect with grace period expiry time
@@ -242,18 +237,8 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
 
       // End room only after 10-minute grace period
       const timer = setTimeout(() => {
-        guideGraceTimers.delete(roomId);
         markRelayRoomEnded(roomId);
-        const roomSock = roomSockets.get(roomId);
-        if (roomSock) {
-          roomSock.listeners.forEach((listener) => {
-            if (listener.readyState === WebSocket.OPEN) {
-              listener.send(JSON.stringify({ type: 'room_ended' }));
-              listener.close();
-            }
-          });
-          roomSockets.delete(roomId);
-        }
+        closeRoomSockets(roomId, 1000, 'room ended');
       }, GUIDE_GRACE_MS);
 
       guideGraceTimers.set(roomId, timer);
@@ -269,6 +254,10 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
 
     ws.on('close', () => {
       sockets.listeners.delete(ws);
+      if (roomSockets.get(roomId) === sockets && !sockets.guide && !sockets.listeners.size && !guideGraceTimers.has(roomId)) {
+        roomSockets.delete(roomId);
+        return;
+      }
       broadcastListenerCount(roomId);
     });
   }

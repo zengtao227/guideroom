@@ -19,9 +19,7 @@ Page({
         wx.navigateTo({
           url: '/pages/guide/guide?roomId=' + room.roomId
             + '&listenerToken=' + encodeURIComponent(room.listenerToken)
-            + '&guideToken=' + encodeURIComponent(room.guideToken)
-            + '&title=' + encodeURIComponent(room.title || '')
-            + '&expiresAt=' + encodeURIComponent(room.expiresAt || ''),
+            + '&guideToken=' + encodeURIComponent(room.guideToken),
         });
       },
       fail: () => wx.showToast({ title: 'Create failed', icon: 'none' }),

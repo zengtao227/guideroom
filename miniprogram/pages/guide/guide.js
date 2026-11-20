@@ -1,10 +1,9 @@
 const recorder = wx.getRecorderManager();
+const GUIDE_ENDED_CLOSE_CODE = 4000;
 
 Page({
   data: {
-    roomId: '',
     listenerToken: '',
-    guideToken: '',
     qrcodeUrl: '',
     listenerCount: 0,
     micOn: false,
@@ -19,7 +18,7 @@ Page({
     const guideToken = options.guideToken || '';
     const app = getApp();
     const qrcodeUrl = app.globalData.relayBase + '/relay-api/rooms/' + encodeURIComponent(listenerToken) + '/qrcode';
-    this.setData({ roomId, listenerToken, guideToken, qrcodeUrl });
+    this.setData({ listenerToken, qrcodeUrl });
     this._connectWs(roomId, guideToken);
     this._setupRecorder();
   },
@@ -55,7 +54,10 @@ Page({
         this.ws.send({ data: frameBuffer });
       }
     });
-    recorder.onStop(() => { this.recording = false; });
+    recorder.onStop(() => {
+      this.recording = false;
+      this.setData({ micOn: false });
+    });
     recorder.onError(() => {
       this.recording = false;
       this.setData({ micOn: false });
@@ -99,11 +101,20 @@ Page({
       title: '确认结束',
       content: '结束房间后所有访客将断开连接。',
       success: (res) => {
-        if (res.confirm) {
-          if (this.recording) recorder.stop();
-          if (this.ws) this.ws.close({});
-          wx.navigateBack();
+        if (!res.confirm) return;
+        const showFailure = () => wx.showToast({ title: '结束房间失败', icon: 'none' });
+        if (!this.ws) {
+          showFailure();
+          return;
         }
+        this.ws.close({
+          code: GUIDE_ENDED_CLOSE_CODE,
+          success: () => {
+            this.ws = null;
+            wx.navigateBack();
+          },
+          fail: showFailure,
+        });
       },
     });
   },
@@ -111,5 +122,6 @@ Page({
   onUnload() {
     if (this.recording) recorder.stop();
     if (this.ws) this.ws.close({});
+    this.ws = null;
   },
 });

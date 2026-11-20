@@ -51,6 +51,7 @@ export type Translations = {
     startSpeaking: string;
     ending: string;
     endRoom: string;
+    endRoomFailed: string;
     listenerLink: string;
     connectingToRoom: string;
     failedToConnect: string;
@@ -135,6 +136,7 @@ const en: Translations = {
     startSpeaking: 'Start speaking',
     ending: 'Ending…',
     endRoom: 'End room',
+    endRoomFailed: 'Could not end the room. Please try again.',
     listenerLink: 'Listener link',
     connectingToRoom: 'Connecting to room…',
     failedToConnect: 'Failed to connect to room',
@@ -219,6 +221,7 @@ const zh: Translations = {
     startSpeaking: '开始讲话',
     ending: '结束中…',
     endRoom: '结束房间',
+    endRoomFailed: '无法结束房间，请重试。',
     listenerLink: '收听链接',
     connectingToRoom: '正在连接房间…',
     failedToConnect: '连接房间失败',
@@ -303,6 +306,7 @@ const de: Translations = {
     startSpeaking: 'Sprechen',
     ending: 'Beende…',
     endRoom: 'Raum beenden',
+    endRoomFailed: 'Der Raum konnte nicht beendet werden. Bitte erneut versuchen.',
     listenerLink: 'Zuhörer-Link',
     connectingToRoom: 'Verbinde mit Raum…',
     failedToConnect: 'Verbindung fehlgeschlagen',
@@ -387,6 +391,7 @@ const fr: Translations = {
     startSpeaking: 'Commencer à parler',
     ending: 'Fin…',
     endRoom: 'Terminer la salle',
+    endRoomFailed: 'Impossible de fermer la salle. Veuillez réessayer.',
     listenerLink: 'Lien d\'écoute',
     connectingToRoom: 'Connexion en cours…',
     failedToConnect: 'Échec de connexion',

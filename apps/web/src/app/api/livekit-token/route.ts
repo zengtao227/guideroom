@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
   const at = new AccessToken(apiKey, apiSecret, {
     identity: `${role}-${crypto.randomUUID()}`,
     name: role === 'guide' ? 'Guide' : 'Visitor',
-    ttl: Math.max(60, remainingSeconds),
+    ttl: remainingSeconds,
   });
 
   at.addGrant({
